@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,6 +26,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @Table(name = "users")
+@DynamicInsert
 public class User implements UserDetails {
 
     @Id
@@ -56,25 +56,25 @@ public class User implements UserDetails {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Set<Role> role;
+    private Set<Role> roles;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false, updatable = false)
+    @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
     public boolean isDeleted() {
         return deletedAt != null;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.stream().map(r -> new SimpleGrantedAuthority(r.name())).toList();
+        return roles.stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r.name())).toList();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

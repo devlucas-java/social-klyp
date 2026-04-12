@@ -32,38 +32,53 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = authHeader.substring(7);
+        try {
+            final String token = authHeader.substring(7);
+            final String username = jwtService.extractUsername(token);
 
-        if (jwtService.extractUsername(token) == null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            filterChain.doFilter(request, response);
+            if (username == null ||
+                    SecurityContextHolder.getContext().getAuthentication() != null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            Optional<User> userOpt = userRepository.findByUsernameOrEmail(username);
+
+            if (userOpt.isEmpty()) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            User user = userOpt.get();
+
+            if (!jwtService.isValidToken(token, user)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            user.getAuthorities()
+                    );
+
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            SecurityContextHolder.clearContext();
         }
-
-        Optional<User> user = userRepository.findByUsernameOrEmail(jwtService.extractUsername(token));
-
-        if (user.isPresent()) {
-            filterChain.doFilter(request, response);
-        }
-
-        if (!jwtService.isValidToken(token, user.get())) {
-            filterChain.doFilter(request, response);
-        }
-
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        user,
-                        null,
-                        user.get().getAuthorities()
-                );
-        authToken.setDetails(
-                new WebAuthenticationDetailsSource().buildDetails(request)
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
     }

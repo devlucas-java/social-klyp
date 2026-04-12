@@ -13,7 +13,7 @@ import java.time.Instant;
 public class JwtAuthDTO {
 
     @Schema(example = "Bearer")
-    private String typeToken = "Bearer";
+    private final String typeToken = "Bearer";
 
     @Schema(description = "JWT access token")
     private String token;

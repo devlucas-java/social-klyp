@@ -1,6 +1,7 @@
 package com.github.devlucasjava.socialklyp.infrastructure.security.jwt;
 
 import com.github.devlucasjava.socialklyp.domain.entity.User;
+import com.github.devlucasjava.socialklyp.domain.enuns.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -37,7 +38,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .id(user.getId().toString())
-                .subject(user.getEmail())
+                .subject(user.getUsername())
                 .claims(claims)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(expireIn)))
@@ -54,7 +55,7 @@ public class JwtService {
     }
 
     private boolean isTokenNotExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+        return extractClaims(token).getExpiration().after(new Date());
     }
 
     public String extractUsername(String token) {
@@ -66,15 +67,15 @@ public class JwtService {
     }
 
     public boolean isValidToken(String token, User user) {
-        return extractUsername(token).equals(user.getEmail()) &&
+        return extractUsername(token).equals(user.getUsername()) &&
                 isTokenNotExpired(token);
     }
 
     public String generateAccessToken(User user) {
         Map<String, Object> claims = Map.of(
-                "email", user.getEmail(),
+                "email", user.getUsername(),
                 "username", user.getUsername(),
-                "role", user.getRole()
+                "role", user.getRoles().stream().map(Role::name).toList()
         );
         return generateToken(user, claims, jwtExpireIn);
     }
