@@ -33,7 +33,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public JwtAuthDTO register(RegisterDTO request) {
@@ -46,8 +45,9 @@ public class AuthService {
         }
 
         User user = userMapper.toEntity(request);
+        user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Set.of(Role.USER));
+        user.setRoles(Set.of(Role.USER));
 
         Profile profile = new Profile();
         profile.setDisplayName(request.getUsername());
@@ -56,24 +56,30 @@ public class AuthService {
         profile.setUser(user);
 
         user.setProfile(profile);
-        userRepository.save(user);
+        User userSaved = userRepository.saveAndFlush(user);
+
+        String accessToken = jwtService.generateAccessToken(userSaved);
+        String refreshToken = jwtService.generateRefreshToken(userSaved);
 
         return JwtAuthDTO.builder()
-                .user(userMapper.toDTO(user))
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .expiresIn(jwtService.extractExpiration(accessToken))
+                .refreshExpiresIn(jwtService.extractExpiration(refreshToken))
+                .user(userMapper.toDTO(userSaved))
                 .build();
     }
 
 
     public JwtAuthDTO login(LoginDTO request) {
+
         User user = userRepository.findByUsernameOrEmail(request.getLogin())
                 .orElseThrow(InvalidCredentialsException::new);
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getLogin(),
-                        request.getPassword()
-                )
-        );
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+
         final String accessToken = jwtService.generateAccessToken(user);
         final String refreshToken = jwtService.generateRefreshToken(user);
 
@@ -134,7 +140,6 @@ public class AuthService {
                     .valid(false)
                     .build();
         }
-
         return BooleanDTO.builder()
                 .valid(true)
                 .build();

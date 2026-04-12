@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,6 +43,12 @@ public class GlobalHandlerException {
         return build(HttpStatus.BAD_REQUEST, "Malformed JSON request", null);
     }
 
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
+
+        return build(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Content-Type not supported. Use application/json", null);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ResponseErrorsDTO> handleConstraintViolation(ConstraintViolationException ex) {
 
@@ -62,6 +69,8 @@ public class GlobalHandlerException {
     public ResponseEntity<ResponseErrorsDTO> handleAccessDenied(AccessDeniedException ex) {
         return build(HttpStatus.FORBIDDEN, "Access denied", null);
     }
+
+    // - TODO: Custom Exceptions
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ResponseErrorsDTO> handleInvalidCredentialsException(InvalidCredentialsException ex) {

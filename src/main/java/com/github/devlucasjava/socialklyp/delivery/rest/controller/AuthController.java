@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +41,19 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(loginDTO));
     }
 
+    @PostMapping("/refresh-token")
+    @Operation(summary = "Refresh access token using refresh token")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<JwtAuthDTO> refreshToken(
+            @RequestHeader("RefreshToken") String token
+    ) {
+        JwtAuthDTO response = authService.refreshToken(token);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/verify-password")
     @Operation(summary = "Verify user password")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<BooleanDTO> verifyPassword(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody VerifyPasswordDTO dto) {
@@ -50,6 +62,7 @@ public class AuthController {
     }
 
     @PutMapping("/password")
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Update user password")
     public ResponseEntity<Void> updatePassword(
             @AuthenticationPrincipal User user,
