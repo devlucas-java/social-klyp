@@ -2,63 +2,9 @@ spring:
   application:
     name: social-klyp
 
-  datasource:
-    url: jdbc:h2:mem:db
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+# if use docker compose comment, or use intellij user profile dev, test or prod
+#  profiles:
+#    active: dev
 
 server:
   port: 8888
-
-jwt:
-  secret: c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==c29jaWFsLWtseWAA==
-  accessExpiration: 3600
-  refreshExpiration: 7200
-
-cors:
-  allowed-origins: "http://localhost:3000,*"
-
-app:
-  init-user:
-    enabled: true
-    username: admin
-    email: admin@socialklyp.com
-    password: 12345678
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, metrics, loggers
-      base-path: /actuator
-  endpoint:
-    health:
-      show-details: when-authorized
-  info:
-    env:
-      enabled: true
-
-info:
-  app:
-    name: Social Klyp Backend
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-  api-docs:
-    path: /v3/api-docs

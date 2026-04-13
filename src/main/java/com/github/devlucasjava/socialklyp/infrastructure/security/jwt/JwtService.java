@@ -18,7 +18,6 @@ public class JwtService {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
-    // Valores lidos de jwt.accessExpiration e jwt.refreshExpiration no application.yaml
     @Value("${jwt.accessExpiration}")
     private long accessExpiration;
 

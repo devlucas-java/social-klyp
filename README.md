@@ -242,46 +242,18 @@ social-klyp-backend/
 
 ---
 
-## 🌐 Endpoints
+## 🌐 Endpoints implementados
 
 ### Auth
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/api/v1/auth/register` | Cadastro de usuário |
-| POST | `/api/v1/auth/login` | Login com e-mail e senha |
-| POST | `/api/v1/auth/refresh` | Refresh de token JWT |
-| GET | `/oauth2/authorization/google` | Inicia login social Google |
+| Método | Rota                         | Descrição                |
+|--------|------------------------------|--------------------------|
+| POST   | `/api/v1/auth/register`      | Cadastro de usuário      |
+| POST   | `/api/v1/auth/login`         | Login com e-mail e senha |
+| POST   | `/api/v1/auth/refresh`       | Refresh de token JWT     |
+| PUT    | `/api/v1/auth/password`      | Trocar senha             |
+| POST | `/api/v1/auth/verify-password`| Verificar senha          |
 
-### Users
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/api/v1/users/{id}` | Buscar usuário por ID |
-| PUT | `/api/v1/users` | Atualizar perfil |
-| DELETE | `/api/v1/users` | Deletar conta |
 
-### Posts
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/api/v1/posts` | Criar post |
-| GET | `/api/v1/posts` | Listar posts (paginado) |
-| POST | `/api/v1/posts/{id}/like` | Curtir post |
-| POST | `/api/v1/posts/{id}/comments` | Comentar |
-
-### WebSocket / Chat
-| Destino STOMP | Descrição |
-|---------------|-----------|
-| `/app/chat.send` | Enviar mensagem |
-| `/topic/messages` | Receber mensagens (broadcast) |
-| `/user/queue/messages` | Mensagens privadas |
-
-### Actuator
-| Rota | Descrição |
-|------|-----------|
-| `/actuator/health` | Saúde da aplicação |
-| `/actuator/metrics` | Métricas (Micrometer) |
-| `/actuator/info` | Informações da build |
-
----
 
 ## ▶️ Como Executar
 
@@ -306,8 +278,8 @@ docker compose -f docker/docker-compose.yml up -d
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-A API estará disponível em `http://localhost:8080`  
-Swagger UI: `http://localhost:8080/swagger-ui.html`
+A API estará disponível em `http://localhost:8888`  
+Swagger UI: `http://localhost:8888/swagger-ui.html`
 
 ---
 
@@ -330,16 +302,71 @@ Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ---
 
-## 🐳 Docker
+## 🐳 Docker (Compose)
+
+Antes de tudo, faça o clone do projeto:
 
 ```bash
-# Build da imagem
-docker build -t social-klyp-backend -f docker/Dockerfile .
+git clone https://github.com/devlucas-java/social-klyp.git
+cd social-klyp
+```
 
-# Subir stack completa (app + postgres + redis)
+---
+
+## 🚀 Subindo a aplicação + PostgreSQL
+
+O projeto já vem com um `docker-compose.yml` pronto para subir toda a stack.
+
+Para subir tudo (API + banco de dados):
+
+```bash
 docker compose -f docker/docker-compose.yml up --build
 ```
 
+---
+
+## 📦 O que será iniciado
+
+| Serviço                     | Descrição               |
+|----------------------------|-------------------------|
+| application-social-klyp    | API Spring Boot         |
+| postgress-social-klyp      | Banco de dados PostgreSQL |
+
+---
+
+## 🌐 Acesso
+
+```text
+API:    http://localhost:8888
+Banco:  localhost:5432
+```
+
+---
+
+## ⚙️ Parar os serviços
+
+```bash
+docker compose -f docker/docker-compose.yml down
+```
+
+---
+
+## 💾 Resetar banco (opcional)
+
+```bash
+docker compose -f docker/docker-compose.yml down -v
+```
+
+---
+
+## ⚠️ Observações importantes
+
+```text
+- O backend se conecta ao banco via rede interna do Docker (db:5432)
+- Não é necessário instalar PostgreSQL localmente
+- O Docker Compose cria automaticamente uma rede isolada entre os serviços
+- O banco usa volume persistente (pgdata)
+```
 ---
 
 ## ⚙️ Variáveis de Ambiente

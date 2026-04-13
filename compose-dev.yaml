@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: social-klyp-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+volumes:
+  pgdata:

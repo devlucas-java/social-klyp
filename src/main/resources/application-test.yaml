@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/social_klyp_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+jwt:
+  secret: test-secret-key-social-klyp-dev-only
+  accessExpiration: 3600
+  refreshExpiration: 7200
+
+cors:
+  allowed-origins: "*"
+
+app:
+  init-user:
+    enabled: true
+    username: admin
+    email: admin@dev.com
+    password: 12345678
