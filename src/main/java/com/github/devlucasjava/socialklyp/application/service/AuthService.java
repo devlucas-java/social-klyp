@@ -37,7 +37,7 @@ public class AuthService {
     @Transactional
     public JwtAuthDTO register(RegisterDTO request) {
 
-        if (userRepository.existsByEmail(request.getEmail())){
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("This is email already exists");
         }
         if (userRepository.existsByUsername(request.getUsername())){
