@@ -23,16 +23,12 @@ jwt:
   accessExpiration: 3600
   refreshExpiration: 7200
 
-storage:
-  b2:
-    application-key: K005PA8DTZN8QWlh/JiPxgKXvkFGB1c
-    key-name: social-klyp-key-read-write
-    key-id: 0054ad00ddb94250000000002
 
-    prefix-name-files: social-klyp
-
-    bucket-id: 048a8dd0903d8d7b99d40215
-    bucket-name: social-klyp-storage
+b2: # keys for test, expire in 2026-04-20
+  key-id: 0054ad00ddb94250000000002
+  key: K005PA8DTZN8QWlh/JiPxgKXvkFGB1c
+  prefix-name-files: social-klyp
+  bucket-id: 048a8dd0903d8d7b99d40215
 
 cors:
   allowed-origins: "*"
