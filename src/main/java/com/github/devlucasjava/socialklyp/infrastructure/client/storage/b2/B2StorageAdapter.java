@@ -40,4 +40,12 @@ public class B2StorageAdapter implements StoragePort {
         deleteFileClient.deleteFile(fileId, fileName);
         log.info("B2 delete complete. fileId={} fileName={}", fileId, fileName);
     }
+
+    @Override
+    public String getPublicUrl(String fileId, String fileName) {
+
+        String url = "https://f000.backblazeb2.com/file/" + fileId + "/" + fileName;
+        log.info("B2 Create url complete. fileId={} fileName={}, url={}", fileId, fileName, url);
+        return url;
+    }
 }

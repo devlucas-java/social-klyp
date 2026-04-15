@@ -8,4 +8,6 @@ public interface StoragePort {
     B2UploadFileResponse upload(byte[] fileData, String fileName, String contentType);
 
     void delete(String fileId, String fileName);
+
+    String getPublicUrl(String fileId, String fileName);
 }
