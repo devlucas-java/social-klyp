@@ -1,5 +1,6 @@
 package com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2;
 
+import com.github.devlucasjava.socialklyp.domain.enuns.MediaType;
 import com.github.devlucasjava.socialklyp.infrastructure.client.port.StoragePort;
 import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.dto.response.upload.B2GetUploadUrlResponse;
 import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.dto.response.upload.B2UploadFileResponse;
@@ -15,19 +16,28 @@ public class B2StorageAdapter implements StoragePort {
 
     private static final Logger log = LoggerFactory.getLogger(B2StorageAdapter.class);
 
-    private final B2UploadUrlClient  uploadUrlClient;
+    private final B2UploadUrlClient uploadUrlClient;
     private final B2UploadFileClient uploadFileClient;
     private final B2DeleteFileClient deleteFileClient;
 
 
     @Override
-    public B2UploadFileResponse upload(byte[] fileData, String fileName, String contentType) {
+    public B2UploadFileResponse upload(
+            byte[] fileData,
+            String fileName,
+            String contentType,
+            boolean business,
+            MediaType mediaType
+    ) {
         log.info("Starting B2 upload. fileName={} contentType={} sizeBytes={}",
                 fileName, contentType, fileData.length);
 
         B2GetUploadUrlResponse uploadUrl = uploadUrlClient.fetchUploadUrl();
 
-        B2UploadFileResponse result = uploadFileClient.uploadFile(uploadUrl, fileData, fileName, contentType);
+        String storageKey = resolve(mediaType, business, fileName);
+
+        B2UploadFileResponse result =
+                uploadFileClient.uploadFile(uploadUrl, fileData, storageKey, contentType);
 
         log.info("B2 upload complete. fileId={} fileName={}", result.fileId(), result.fileName());
         return result;
@@ -35,17 +45,41 @@ public class B2StorageAdapter implements StoragePort {
 
 
     @Override
-    public void delete(String fileId, String fileName) {
+    public void delete(String fileId, String fileName, boolean business, MediaType mediaType) {
         log.info("Starting B2 delete. fileId={} fileName={}", fileId, fileName);
+
         deleteFileClient.deleteFile(fileId, fileName);
+
         log.info("B2 delete complete. fileId={} fileName={}", fileId, fileName);
     }
 
     @Override
-    public String getPublicUrl(String fileId, String fileName) {
+    public String getPublicUrl(String fileId, String fileName, boolean business, MediaType mediaType) {
 
-        String url = "https://f000.backblazeb2.com/file/" + fileId + "/" + fileName;
-        log.info("B2 Create url complete. fileId={} fileName={}, url={}", fileId, fileName, url);
+        String storageKey = resolve(mediaType, business, fileName);
+
+        String url = "https://f000.backblazeb2.com/file/" + fileId + "/" + storageKey;
+        log.info("B2 Create url complete. fileId={} fileName={}, url={}", fileId, storageKey, url);
         return url;
     }
+
+
+    public static String resolve(MediaType mediaType, boolean business, String fileName) {
+
+        String baseFolder = resolveBaseFolder(mediaType, business);
+
+        return baseFolder + "/" + fileName;
+    }
+
+    private static String resolveBaseFolder(MediaType mediaType, boolean business) {
+
+        String prefix = business ? "business" : "users";
+
+        return switch (mediaType) {
+            case IMAGE -> prefix + "/photos";
+            case VIDEO -> prefix + "/videos";
+            default -> prefix + "/misc";
+        };
+    }
+
 }

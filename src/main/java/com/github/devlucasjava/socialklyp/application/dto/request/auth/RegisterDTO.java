@@ -35,6 +35,10 @@ public class RegisterDTO {
     @Schema(example = "lucas@klyp.com")
     private String email;
 
+    @NotNull(message = "Business is required")
+    @Schema(example = "false")
+    private boolean business;
+
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 30, message = "Password must have at least 8 and max 30 characters")
     @Schema(example = "!12345678")

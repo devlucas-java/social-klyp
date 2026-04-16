@@ -16,7 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @RequiredArgsConstructor
-class B2DeleteFileClient {
+public class B2DeleteFileClient {
 
     private static final Logger log = LoggerFactory.getLogger(B2DeleteFileClient.class);
     private static final String ENDPOINT = "/b2api/v4/b2_delete_file_version";

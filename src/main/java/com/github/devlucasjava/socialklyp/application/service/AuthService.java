@@ -9,7 +9,6 @@ import com.github.devlucasjava.socialklyp.application.dto.response.utils.Boolean
 import com.github.devlucasjava.socialklyp.application.mapper.UserMapper;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ConflictException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.InvalidCredentialsException;
-import com.github.devlucasjava.socialklyp.delivery.rest.advice.InvalidOrExpiredTokenException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
@@ -17,8 +16,6 @@ import com.github.devlucasjava.socialklyp.domain.enuns.Role;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.UserRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +37,7 @@ public class AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("This is email already exists");
         }
-        if (userRepository.existsByUsername(request.getUsername())){
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new ConflictException("This is username already exists");
         }
 

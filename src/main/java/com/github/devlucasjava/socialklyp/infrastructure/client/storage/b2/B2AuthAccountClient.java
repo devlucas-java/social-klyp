@@ -18,7 +18,7 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RequiredArgsConstructor
-class B2AuthAccountClient {
+public class B2AuthAccountClient {
 
     private static final Logger log = LoggerFactory.getLogger(B2AuthAccountClient.class);
     private static final String AUTHORIZE_URL = "https://api.backblazeb2.com/b2api/v4/b2_authorize_account";

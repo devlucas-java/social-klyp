@@ -22,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
 
 
 @RequiredArgsConstructor
-class B2UploadFileClient {
+public class B2UploadFileClient {
 
     private static final Logger log = LoggerFactory.getLogger(B2UploadFileClient.class);
 
@@ -39,18 +39,22 @@ class B2UploadFileClient {
         log.info("Uploading file to B2. fileName={} contentType={} sizeBytes={}",
                 fileName, contentType, fileData.length);
 
-        String sha1            = computeSha1(fileData);
+        log.info(uploadUrlResponse.authorizationToken());
+        log.info(uploadUrlResponse.uploadUrl());
+
+        String sha1 = computeSha1(fileData);
         String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uploadUrlResponse.uploadUrl()))
-                .header("Authorization",   uploadUrlResponse.authorizationToken())
-                .header("X-Bz-File-Name",  encodedFileName)
-                .header("Content-Type",    contentType)
-                .header("Content-Length",  String.valueOf(fileData.length))
+                .header("Authorization", uploadUrlResponse.authorizationToken())
+                .header("X-Bz-File-Name", encodedFileName)
+                .header("Content-Type", contentType)
+                //.header("Content-Length",  String.valueOf(fileData.length))
                 .header("X-Bz-Content-Sha1", sha1)
                 .POST(HttpRequest.BodyPublishers.ofByteArray(fileData))
                 .build();
+
 
         HttpResponse<String> response = sendRequest(request, fileName);
         return handleResponse(response, fileName);
@@ -58,8 +62,8 @@ class B2UploadFileClient {
 
 
     private B2UploadFileResponse handleResponse(HttpResponse<String> response, String fileName) {
-        int    status = response.statusCode();
-        String body   = response.body();
+        int status = response.statusCode();
+        String body = response.body();
 
         return switch (status) {
             case 200 -> {
@@ -137,9 +141,9 @@ class B2UploadFileClient {
 
     private String computeSha1(byte[] input) {
         try {
-            MessageDigest md        = MessageDigest.getInstance("SHA-1");
-            byte[]        hashBytes = md.digest(input);
-            StringBuilder hex       = new StringBuilder(40);
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            byte[] hashBytes = md.digest(input);
+            StringBuilder hex = new StringBuilder(40);
             for (byte b : hashBytes) {
                 hex.append(String.format("%02x", b));
             }

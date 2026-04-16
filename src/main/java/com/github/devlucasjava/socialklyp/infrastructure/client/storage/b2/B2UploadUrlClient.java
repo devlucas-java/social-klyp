@@ -17,7 +17,7 @@ import java.net.http.HttpResponse;
 
 
 @RequiredArgsConstructor
-class B2UploadUrlClient {
+public class B2UploadUrlClient {
 
     private static final Logger log = LoggerFactory.getLogger(B2UploadUrlClient.class);
     private static final String ENDPOINT = "/b2api/v4/b2_get_upload_url";

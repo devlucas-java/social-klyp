@@ -1,34 +1,19 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:socialklyp
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/social_klyp_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+      ddl-auto: create-drop
+    show-sql: false
 
 jwt:
-  secret: dev-secret-key-social-klyp-dev-only
+  secret: test-secret-key-social-klyp-dev-only
   accessExpiration: 3600
   refreshExpiration: 7200
-
-
-b2: # keys for test, expire in 2026-04-20
-  key-id: 0054ad00ddb94250000000002
-  key: K005PA8DTZN8QWlh/JiPxgKXvkFGB1c
-  prefix-name-files: social-klyp
-  bucket-id: 048a8dd0903d8d7b99d40215
 
 cors:
   allowed-origins: "*"
