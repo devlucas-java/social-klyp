@@ -8,7 +8,7 @@ import com.github.devlucasjava.socialklyp.application.validator.FileValidator;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.FileReadException;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
-import com.github.devlucasjava.socialklyp.domain.enuns.MediaType;
+import com.github.devlucasjava.socialklyp.domain.enums.MediaType;
 import com.github.devlucasjava.socialklyp.infrastructure.client.port.StoragePort;
 import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.dto.response.upload.B2UploadFileResponse;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;

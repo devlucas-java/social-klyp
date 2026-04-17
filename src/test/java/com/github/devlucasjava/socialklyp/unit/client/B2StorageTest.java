@@ -1,6 +1,6 @@
 package com.github.devlucasjava.socialklyp.unit.client;
 
-import com.github.devlucasjava.socialklyp.domain.enuns.MediaType;
+import com.github.devlucasjava.socialklyp.domain.enums.MediaType;
 import com.github.devlucasjava.socialklyp.infrastructure.client.port.StoragePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

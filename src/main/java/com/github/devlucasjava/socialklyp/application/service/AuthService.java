@@ -13,7 +13,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundE
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.TokenVerify;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
-import com.github.devlucasjava.socialklyp.domain.enuns.Role;
+import com.github.devlucasjava.socialklyp.domain.enums.Role;
 import com.github.devlucasjava.socialklyp.infrastructure.client.port.EmailPort;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.TokenVerifyRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.UserRepository;
