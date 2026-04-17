@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.InputStream;
+
 
 @Component
 @RequiredArgsConstructor
@@ -23,24 +25,27 @@ public class B2StorageAdapter implements StoragePort {
 
     @Override
     public B2UploadFileResponse upload(
-            byte[] fileData,
+            InputStream fileStream,
+            long contentLength,
             String fileName,
             String contentType,
             boolean business,
             MediaType mediaType
     ) {
         log.info("Starting B2 upload. fileName={} contentType={} sizeBytes={}",
-                fileName, contentType, fileData.length);
+                fileName, contentType, contentLength);
 
         B2GetUploadUrlResponse uploadUrl = uploadUrlClient.fetchUploadUrl();
 
         String storageKey = resolve(mediaType, business, fileName);
 
-        B2UploadFileResponse result =
-                uploadFileClient.uploadFile(uploadUrl, fileData, storageKey, contentType);
-
-        log.info("B2 upload complete. fileId={} fileName={}", result.fileId(), result.fileName());
-        return result;
+        return uploadFileClient.uploadFile(
+                uploadUrl,
+                fileStream,
+                contentLength,
+                storageKey,
+                contentType
+        );
     }
 
 

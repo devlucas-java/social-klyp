@@ -11,14 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 
 @RequiredArgsConstructor
@@ -32,17 +31,17 @@ public class B2UploadFileClient {
 
     B2UploadFileResponse uploadFile(
             B2GetUploadUrlResponse uploadUrlResponse,
-            byte[] fileData,
+            InputStream inputStream,
+            long contentLength,
             String fileName,
             String contentType
     ) {
         log.info("Uploading file to B2. fileName={} contentType={} sizeBytes={}",
-                fileName, contentType, fileData.length);
+                fileName, contentType, contentLength);
 
         log.info(uploadUrlResponse.authorizationToken());
         log.info(uploadUrlResponse.uploadUrl());
 
-        String sha1 = computeSha1(fileData);
         String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -50,9 +49,9 @@ public class B2UploadFileClient {
                 .header("Authorization", uploadUrlResponse.authorizationToken())
                 .header("X-Bz-File-Name", encodedFileName)
                 .header("Content-Type", contentType)
-                //.header("Content-Length",  String.valueOf(fileData.length))
-                .header("X-Bz-Content-Sha1", sha1)
-                .POST(HttpRequest.BodyPublishers.ofByteArray(fileData))
+                .header("Content-Length", String.valueOf(contentLength))
+                .header("X-Bz-Content-Sha1", "do_not_verify")
+                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> inputStream))
                 .build();
 
 
@@ -135,22 +134,6 @@ public class B2UploadFileClient {
         } catch (JsonProcessingException e) {
             log.warn("Failed to parse B2 error body. body={}", body);
             return null;
-        }
-    }
-
-
-    private String computeSha1(byte[] input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] hashBytes = md.digest(input);
-            StringBuilder hex = new StringBuilder(40);
-            for (byte b : hashBytes) {
-                hex.append(String.format("%02x", b));
-            }
-            return hex.toString();
-        } catch (NoSuchAlgorithmException e) {
-            // SHA-1 is guaranteed by the JVM spec — this should never happen
-            throw new IllegalStateException("SHA-1 algorithm not available", e);
         }
     }
 }
