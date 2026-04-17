@@ -2,6 +2,8 @@ package com.github.devlucasjava.socialklyp.application.service;
 
 import com.github.devlucasjava.socialklyp.application.dto.response.media.MediaResponse;
 import com.github.devlucasjava.socialklyp.application.mapper.MediaMapper;
+import com.github.devlucasjava.socialklyp.application.validator.FileValidator;
+import com.github.devlucasjava.socialklyp.delivery.rest.advice.FileReadException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
 import com.github.devlucasjava.socialklyp.domain.entity.Media;
 import com.github.devlucasjava.socialklyp.domain.entity.Post;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ public class MediaService {
 
     private final MediaRepository mediaRepository;
     private final PostRepository postRepository;
+    private final FileValidator fileValidator;
     private final MediaMapper mediaMapper;
     private final StoragePort storagePort;
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -43,7 +47,7 @@ public class MediaService {
 
     @Transactional
     public MediaResponse uploadToPost(UUID postId, MultipartFile file) {
-        validateFile(file);
+        fileValidator.validateImageOrVideo(file);
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
@@ -60,8 +64,8 @@ public class MediaService {
                     false,
                     mediaType
             );
-        } catch (Exception e) {
-            throw new RuntimeException("Error uploading file", e);
+        } catch (IOException e) {
+            throw new FileReadException("Error uploading file");
         }
 
         Media media = new Media();
@@ -90,24 +94,5 @@ public class MediaService {
             return MediaType.VIDEO;
         }
         return MediaType.IMAGE;
-    }
-
-    private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("File must not be empty");
-        }
-
-        String contentType = file.getContentType();
-        long size = file.getSize();
-
-        if (contentType != null && contentType.startsWith("video")) {
-            if (size > MAX_VIDEO_SIZE) {
-                throw new IllegalArgumentException("Video exceeds 50MB limit");
-            }
-        } else {
-            if (size > MAX_IMAGE_SIZE) {
-                throw new IllegalArgumentException("Image exceeds 5MB limit");
-            }
-        }
     }
 }

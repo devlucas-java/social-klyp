@@ -31,6 +31,10 @@ public class Comment {
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
