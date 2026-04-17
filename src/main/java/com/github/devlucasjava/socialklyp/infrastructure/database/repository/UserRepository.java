@@ -16,7 +16,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                 SELECT u 
                 FROM User u 
                 WHERE (u.username = :login OR u.email = :login)
-                AND u.deletedAt IS NULL
             """)
     Optional<User> findByUsernameOrEmail(@Param("login") String login);
 

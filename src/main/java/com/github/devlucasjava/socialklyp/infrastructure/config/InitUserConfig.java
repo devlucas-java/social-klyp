@@ -36,6 +36,8 @@ public class InitUserConfig  implements CommandLineRunner {
         user.setFirstName("Lucas");
         user.setLastName("Admin");
         user.setEmail(properties.getEmail());
+        user.setEmailVerified(true);
+        user.setBusiness(true);
         user.setBirthDay(LocalDate.now());
         user.setUsername(properties.getUsername());
         user.setPassword(passwordEncoder.encode(properties.getPassword()));

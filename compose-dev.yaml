@@ -9,7 +9,26 @@ services:
     ports:
       - "8888:8888"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:postgresql://social-klyp-db:5432/social_klyp_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17.0-alpine
+    container_name: social-klyp-db
+    restart: always
+    environment:
+      POSTGRES_DB: social_klyp_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:

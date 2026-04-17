@@ -26,6 +26,12 @@ public class Media {
     private UUID id;
 
     @Column(nullable = false)
+    private String mediaId;
+
+    @Column(nullable = false)
+    private String mediaName;
+
+    @Column(nullable = false)
     private String mediaUrl;
 
     @Enumerated(EnumType.STRING)

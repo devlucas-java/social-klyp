@@ -38,4 +38,14 @@ public class Post {
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "profile_id", nullable = false)
+    private Profile profile;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Like> likes;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments;
 }

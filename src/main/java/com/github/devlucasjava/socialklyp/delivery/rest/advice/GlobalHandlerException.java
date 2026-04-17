@@ -2,6 +2,8 @@ package com.github.devlucasjava.socialklyp.delivery.rest.advice;
 
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.dto.FieldErrorDTO;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.dto.ResponseErrorsDTO;
+import com.github.devlucasjava.socialklyp.infrastructure.client.email.brevo.exception.EmailBadGatewayException;
+import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.exception.StorageBadGatewayException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -90,6 +92,26 @@ public class GlobalHandlerException {
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ResponseErrorsDTO> handleConflictException(ConflictException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(StorageBadGatewayException.class)
+    public ResponseEntity<ResponseErrorsDTO> handlerStorageBadGateWayException(StorageBadGatewayException ex) {
+        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(EmailBadGatewayException.class)
+    public ResponseEntity<ResponseErrorsDTO> handlerEmailBadGatewayException(EmailBadGatewayException ex) {
+        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(FileReadException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleFileReadException(FileReadException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleInvalidFileException(InvalidFileException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
     }
 
     // - TODO: DISABLE FOR DEVELOPMENT NOW, ENABLE LATER

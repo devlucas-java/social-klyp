@@ -49,6 +49,9 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
+    private boolean emailVerified;
+
+    @Column(nullable = false)
     private String password;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -58,6 +61,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    @Column(nullable = false)
+    private boolean business;
+
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -65,12 +71,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    private LocalDateTime deletedAt;
-
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -104,6 +104,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return deletedAt == null;
+        return true;
     }
 }
