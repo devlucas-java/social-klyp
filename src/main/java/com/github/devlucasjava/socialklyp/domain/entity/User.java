@@ -72,12 +72,6 @@ public class User implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    private LocalDateTime deletedAt;
-
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r.name())).toList();
@@ -110,6 +104,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return deletedAt == null;
+        return true;
     }
 }
