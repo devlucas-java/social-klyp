@@ -33,6 +33,12 @@ public class UserDTO {
     @Schema(description = "User email", example = "lucas@email.com")
     private String email;
 
+    @Schema(description = "User email verified", example = "true")
+    private boolean emailVerified;
+
+    @Schema(description = "User business", example = "true")
+    private boolean business;
+
     @Schema(description = "User roles", example = "[\"USER\"]")
     private Set<Role> roles;
 

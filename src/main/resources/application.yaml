@@ -4,7 +4,7 @@ spring:
 
 # if use docker compose comment, or use intellij user profile dev, test or prod
   profiles:
-    active: dev
+    active: test
 
 server:
   port: 8888

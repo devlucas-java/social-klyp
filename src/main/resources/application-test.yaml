@@ -25,18 +25,21 @@ jwt:
 
 
 b2: # keys for test, expire in 2026-04-16
-  key-id: ${B2_KEY_ID}
-  key: ${B2_KEY}
+  key-id: key-id
+  key: key
   prefix-name-files: social-klyp
-  bucket-id: ${B2_BUCKET_ID}
+  bucket-id: bucket-id
 
 
 brevo: # keys for test, expire in 2026-04-17
-  api-key: ${BREVO_API_KEY}
+  api-key: api-key
 
   sender:
     email: your-email-in-brevo@email.com
     name: Social Klyp
+
+frontend:
+  url: http://localhost:3000
 
 cors:
   allowed-origins: "*"

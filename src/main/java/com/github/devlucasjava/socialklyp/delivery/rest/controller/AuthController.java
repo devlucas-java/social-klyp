@@ -16,7 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -73,6 +76,27 @@ public class AuthController {
             @Valid @RequestBody UpdatePasswordDTO dto) {
 
         authService.updatePassword(user, dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/verify-email")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "verify email")
+    public ResponseEntity<Void> verifyEmail(
+            @PathVariable("token") UUID token) {
+
+        authService.verifyEmail(token);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/send-verification")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "send verification email")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Void> sendVerificationEmail(
+            @AuthenticationPrincipal User user) {
+
+        authService.sendVerificationEmail(user);
         return ResponseEntity.noContent().build();
     }
 }

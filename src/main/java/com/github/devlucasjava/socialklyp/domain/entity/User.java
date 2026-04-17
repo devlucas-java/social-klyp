@@ -49,6 +49,9 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
+    private boolean emailVerified;
+
+    @Column(nullable = false)
     private String password;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

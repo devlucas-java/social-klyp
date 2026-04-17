@@ -11,25 +11,35 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ConflictException
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.InvalidCredentialsException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
+import com.github.devlucasjava.socialklyp.domain.entity.TokenVerify;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
 import com.github.devlucasjava.socialklyp.domain.enuns.Role;
+import com.github.devlucasjava.socialklyp.infrastructure.client.port.EmailPort;
+import com.github.devlucasjava.socialklyp.infrastructure.database.repository.TokenVerifyRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.UserRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final TokenVerifyRepository tokenVerifyRepository;
+    private final EmailPort emailPort;
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Transactional
     public JwtAuthDTO register(RegisterDTO request) {
@@ -43,6 +53,7 @@ public class AuthService {
 
         User user = userMapper.toEntity(request);
         user.setUsername(request.getUsername());
+        user.setEmailVerified(false);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(Set.of(Role.USER));
 
@@ -135,5 +146,36 @@ public class AuthService {
         return BooleanDTO.builder()
                 .valid(true)
                 .build();
+    }
+
+    public void verifyEmail(UUID token) {
+
+        TokenVerify tokenVerify = tokenVerifyRepository.findById(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Token not found"));
+        if (tokenVerify.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ResourceNotFoundException("Token expired");
+        }
+
+        User user = userRepository.findByUsernameOrEmail(tokenVerify.getUserId().toString())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setEmailVerified(true);
+        tokenVerifyRepository.delete(tokenVerify);
+        userRepository.save(user);
+    }
+
+    public void sendVerificationEmail(User request) {
+
+        User user = userRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        TokenVerify tokenVerify = new TokenVerify();
+        tokenVerify.setUserId(user.getId());
+        tokenVerify.setExpiresAt(LocalDateTime.now().plusHours(1));
+        tokenVerifyRepository.saveAndFlush(tokenVerify);
+
+        String url = "http://localhost:8080/verify-email?token=" + tokenVerify.getId();
+
+        emailPort.sendVerifyEmail(user.getEmail(), url);
     }
 }
