@@ -43,7 +43,7 @@ public class BrevoEmailAdapter implements EmailPort {
     public void sendWelcome(String toEmail, String toName) {
         log.info("Sending welcome email to={}", toEmail);
 
-        String html = loadTemplate("email-welcome.html")
+        String html = loadTemplate("email-email-welcome.html")
                 .replace("{{NAME}}", toName != null ? toName : "there");
 
         send(toEmail, toName, "Welcome to Klyp 🔥", html);
@@ -141,7 +141,7 @@ public class BrevoEmailAdapter implements EmailPort {
 
     private String loadTemplate(String fileName) {
         try {
-            var stream = getClass().getResourceAsStream("/emails/" + fileName);
+            var stream = getClass().getResourceAsStream("/templates/email/" + fileName);
             if (stream == null) {
                 throw new EmailBadGatewayException("Email template not found: " + fileName);
             }

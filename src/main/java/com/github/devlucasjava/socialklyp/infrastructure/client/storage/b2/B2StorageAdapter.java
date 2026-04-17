@@ -45,7 +45,7 @@ public class B2StorageAdapter implements StoragePort {
 
 
     @Override
-    public void delete(String fileId, String fileName, boolean business, MediaType mediaType) {
+    public void delete(String fileId, String fileName) {
         log.info("Starting B2 delete. fileId={} fileName={}", fileId, fileName);
 
         deleteFileClient.deleteFile(fileId, fileName);
@@ -54,12 +54,10 @@ public class B2StorageAdapter implements StoragePort {
     }
 
     @Override
-    public String getPublicUrl(String fileId, String fileName, boolean business, MediaType mediaType) {
+    public String getPublicUrl(String fileId, String fileName) {
 
-        String storageKey = resolve(mediaType, business, fileName);
-
-        String url = "https://f000.backblazeb2.com/file/" + fileId + "/" + storageKey;
-        log.info("B2 Create url complete. fileId={} fileName={}, url={}", fileId, storageKey, url);
+        String url = "https://f000.backblazeb2.com/file/" + fileId + "/" + fileName;
+        log.info("B2 Create url complete. fileId={} fileName={}, url={}", fileId, fileName, url);
         return url;
     }
 

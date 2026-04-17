@@ -2,6 +2,7 @@ package com.github.devlucasjava.socialklyp.delivery.rest.advice;
 
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.dto.FieldErrorDTO;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.dto.ResponseErrorsDTO;
+import com.github.devlucasjava.socialklyp.infrastructure.client.email.brevo.exception.EmailBadGatewayException;
 import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.exception.StorageBadGatewayException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -95,6 +96,11 @@ public class GlobalHandlerException {
 
     @ExceptionHandler(StorageBadGatewayException.class)
     public ResponseEntity<ResponseErrorsDTO> handlerStorageBadGateWayException(StorageBadGatewayException ex) {
+        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(EmailBadGatewayException.class)
+    public ResponseEntity<ResponseErrorsDTO> handlerEmailBadGatewayException(EmailBadGatewayException ex) {
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), null);
     }
 
