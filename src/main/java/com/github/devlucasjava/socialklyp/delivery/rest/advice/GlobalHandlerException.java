@@ -104,6 +104,16 @@ public class GlobalHandlerException {
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), null);
     }
 
+    @ExceptionHandler(FileReadException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleFileReadException(FileReadException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleInvalidFileException(InvalidFileException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
     // - TODO: DISABLE FOR DEVELOPMENT NOW, ENABLE LATER
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<ResponseErrorsDTO> handleGenericException(Exception ex) {
