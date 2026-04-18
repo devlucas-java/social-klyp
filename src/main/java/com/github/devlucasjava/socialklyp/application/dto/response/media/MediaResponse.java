@@ -1,6 +1,7 @@
 package com.github.devlucasjava.socialklyp.application.dto.response.media;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @Schema(description = "Media data returned by the API")
 @Setter
+@Getter
 public class MediaResponse {
 
     @Schema(description = "Media unique identifier")
