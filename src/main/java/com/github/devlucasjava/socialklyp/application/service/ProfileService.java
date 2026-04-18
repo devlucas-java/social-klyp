@@ -33,8 +33,14 @@ public class ProfileService {
     private final StoragePort storagePort;
 
     @Transactional(readOnly = true)
-    public ProfileResponse findById(UUID id) {
-        return profileMapper.toResponse(findProfileOrThrow(id));
+    public Object findById(UUID id) {
+        Profile profile = findProfileOrThrow(id);
+
+        if( profile.isPrivate() ){
+            return profileMapper.toSummary(profile);
+        }
+
+        return profileMapper.toResponse(profile);
     }
 
     @Transactional(readOnly = true)
