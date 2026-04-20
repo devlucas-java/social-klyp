@@ -4,6 +4,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.dto.FieldErrorDTO
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.dto.ResponseErrorsDTO;
 import com.github.devlucasjava.socialklyp.infrastructure.client.email.brevo.exception.EmailBadGatewayException;
 import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.exception.StorageBadGatewayException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -72,6 +73,11 @@ public class GlobalHandlerException {
         return build(HttpStatus.FORBIDDEN, "Access denied", null);
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), null);
+    }
+
     // - TODO: Custom Exceptions
 
     @ExceptionHandler(InvalidCredentialsException.class)
@@ -93,6 +99,12 @@ public class GlobalHandlerException {
     public ResponseEntity<ResponseErrorsDTO> handleConflictException(ConflictException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage(), null);
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleForbiddenException(ForbiddenException ex) {
+        return build(HttpStatus.FORBIDDEN, ex.getMessage(), null);
+    }
+
 
     @ExceptionHandler(StorageBadGatewayException.class)
     public ResponseEntity<ResponseErrorsDTO> handlerStorageBadGateWayException(StorageBadGatewayException ex) {

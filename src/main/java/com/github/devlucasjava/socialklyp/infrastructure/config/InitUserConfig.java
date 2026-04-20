@@ -1,5 +1,6 @@
 package com.github.devlucasjava.socialklyp.infrastructure.config;
 
+import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
 import com.github.devlucasjava.socialklyp.domain.enums.Role;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.UserRepository;
@@ -41,6 +42,11 @@ public class InitUserConfig  implements CommandLineRunner {
         user.setBirthDay(LocalDate.now());
         user.setUsername(properties.getUsername());
         user.setPassword(passwordEncoder.encode(properties.getPassword()));
+        Profile profile = new Profile();
+        profile.setDisplayName("Lucas Admin");
+        profile.setBio("I'm the admin");
+        profile.setPrivate(false);
+        user.setProfile(profile);
         user.setRoles(Set.of(Role.ADMIN, Role.USER));
         userRepository.save(user);
 
