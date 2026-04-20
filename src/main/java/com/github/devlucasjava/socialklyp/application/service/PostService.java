@@ -4,6 +4,7 @@ import com.github.devlucasjava.socialklyp.application.dto.request.post.CreatePos
 import com.github.devlucasjava.socialklyp.application.dto.request.post.UpdatePostRequest;
 import com.github.devlucasjava.socialklyp.application.dto.response.post.PostResponse;
 import com.github.devlucasjava.socialklyp.application.mapper.PostMapper;
+import com.github.devlucasjava.socialklyp.delivery.rest.advice.ForbiddenException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
 import com.github.devlucasjava.socialklyp.domain.entity.Post;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
@@ -33,8 +34,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostResponse> findMy(User user, Pageable pageable) {
-        Profile profile = profileRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + user.getId()));
+        Profile profile = findProfileOrThrow(user);
         return postRepository.findByProfile(profile, pageable).map(postMapper::toResponse);
     }
 
@@ -45,9 +45,8 @@ public class PostService {
 
     @Transactional
     public PostResponse create(User user, CreatePostRequest request) {
-        Profile profile = profileRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + user.getId()));
 
+        Profile profile = findProfileOrThrow(user);
         Post post = postMapper.toEntity(request);
         post.setProfile(profile);
 
@@ -55,16 +54,30 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse update(UUID postId, UpdatePostRequest request) {
+    public PostResponse update(UUID postId, User auth, UpdatePostRequest request) {
+
         Post post = findPostOrThrow(postId);
+        validateOwnerProfile(findProfileOrThrow(auth), post);
         post.setContent(request.content());
+
         return postMapper.toResponse(postRepository.save(post));
     }
 
     @Transactional
-    public void delete(UUID id) {
-        findPostOrThrow(id);
+    public void delete(User auth, UUID id) {
+        validateOwnerProfile(findProfileOrThrow(auth), findPostOrThrow(id));
         postRepository.deleteById(id);
+    }
+
+    private void validateOwnerProfile(Profile profile, Post post) {
+        if (!profile.getId().equals(post.getProfile().getId())) {
+            throw new ForbiddenException("You cannot modify this post");
+        }
+    }
+
+    private Profile findProfileOrThrow(User user) {
+        return profileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + user.getId()));
     }
 
     private Post findPostOrThrow(UUID id) {

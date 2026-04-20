@@ -64,14 +64,17 @@ public class PostController {
     @Operation(summary = "Update a post")
     public ResponseEntity<PostResponse> update(
             @PathVariable UUID id,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody UpdatePostRequest request) {
-        return ResponseEntity.ok(postService.update(id, request));
+        return ResponseEntity.ok(postService.update(id,user, request));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a post")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        postService.delete(id);
+    public ResponseEntity<Void> delete(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID postId) {
+        postService.delete(user, postId);
         return ResponseEntity.noContent().build();
     }
 }
