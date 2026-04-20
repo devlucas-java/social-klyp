@@ -42,9 +42,9 @@ public class CommentController {
     @Operation(summary = "Add a comment to a post")
     public ResponseEntity<CommentResponse> addComment(
             @PathVariable UUID postId,
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal User auth,
             @Valid @RequestBody CreateCommentRequest request) {
-        CommentResponse response = commentService.addComment(postId, user.getProfile().getId(), request);
+        CommentResponse response = commentService.addComment(postId, auth, request);
         URI location = URI.create("/posts/" + postId + "/comments/" + response.id());
         return ResponseEntity.created(location).body(response);
     }
@@ -52,20 +52,18 @@ public class CommentController {
     @PutMapping("/{commentId}")
     @Operation(summary = "Update a comment")
     public ResponseEntity<CommentResponse> updateComment(
-            @PathVariable UUID postId,
             @PathVariable UUID commentId,
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal User auth,
             @Valid @RequestBody UpdateCommentRequest request) {
-        return ResponseEntity.ok(commentService.updateComment(commentId, user.getProfile().getId(), request));
+        return ResponseEntity.ok(commentService.updateComment(commentId, auth, request));
     }
 
     @DeleteMapping("/{commentId}")
     @Operation(summary = "Delete a comment")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable UUID postId,
             @PathVariable UUID commentId,
-            @AuthenticationPrincipal User user) {
-        commentService.deleteComment(commentId, user.getProfile().getId());
+            @AuthenticationPrincipal User auth) {
+        commentService.deleteComment(commentId, auth);
         return ResponseEntity.noContent().build();
     }
 }
