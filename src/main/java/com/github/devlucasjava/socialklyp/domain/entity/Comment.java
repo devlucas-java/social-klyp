@@ -27,14 +27,6 @@ public class Comment {
     @Column(nullable = false, length = 512)
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "profile_id", nullable = false)
-    private Profile profile;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
-
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -42,4 +34,12 @@ public class Comment {
     @Column(nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "post_id")
+    private Post post;
 }

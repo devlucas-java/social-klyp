@@ -46,7 +46,7 @@ public class Media {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 }

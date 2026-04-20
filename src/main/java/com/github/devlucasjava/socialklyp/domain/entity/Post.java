@@ -28,9 +28,6 @@ public class Post {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Media> medias;
-
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -39,13 +36,16 @@ public class Post {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "profile_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "profile_id")
     private Profile profile;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Like> likes;
+    private Set<Media> medias;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Like> likes;
 }
