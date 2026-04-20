@@ -52,8 +52,6 @@ public class AuthService {
         }
 
         User user = userMapper.toEntity(request);
-        user.setUsername(request.getUsername());
-        user.setEmailVerified(false);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(Set.of(Role.USER));
 

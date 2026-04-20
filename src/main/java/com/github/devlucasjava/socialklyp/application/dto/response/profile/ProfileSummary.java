@@ -8,5 +8,6 @@ import java.util.UUID;
 public record ProfileSummary(
         UUID id,
         String displayName,
-        String profilePictureUrl
+        String profilePictureUrl,
+        boolean isPrivate
 ) {}
