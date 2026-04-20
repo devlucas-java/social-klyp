@@ -13,7 +13,8 @@ public class ProfileMapper {
         return new ProfileSummary(
                 profile.getId(),
                 profile.getDisplayName(),
-                profile.getProfilePictureUrl()
+                profile.getProfilePictureUrl(),
+                profile.isPrivate()
         );
     }
 
@@ -26,14 +27,5 @@ public class ProfileMapper {
                 profile.isPrivate(),
                 profile.getUser().getId()
         );
-    }
-
-    public Profile toEntity(CreateProfileRequest request) {
-
-        Profile profile = new Profile();
-        profile.setDisplayName(request.displayName());
-        profile.setBio(request.bio());
-        profile.setPrivate(request.isPrivate());
-        return profile;
     }
 }

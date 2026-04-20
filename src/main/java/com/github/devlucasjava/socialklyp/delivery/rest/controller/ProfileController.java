@@ -1,6 +1,5 @@
 package com.github.devlucasjava.socialklyp.delivery.rest.controller;
 
-import com.github.devlucasjava.socialklyp.application.dto.request.profile.CreateProfileRequest;
 import com.github.devlucasjava.socialklyp.application.dto.request.profile.UpdateProfileRequest;
 import com.github.devlucasjava.socialklyp.application.dto.response.profile.ProfileResponse;
 import com.github.devlucasjava.socialklyp.application.service.ProfileService;
@@ -17,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -39,40 +37,22 @@ public class ProfileController {
     @GetMapping("/me")
     @Operation(summary = "Get the authenticated user's profile")
     public ResponseEntity<ProfileResponse> findMyProfile(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(profileService.findByUserId(user.getId()));
+        return ResponseEntity.ok(profileService.findByUser(user));
     }
 
-    @PostMapping
-    @Operation(summary = "Create a profile for the authenticated user")
-    public ResponseEntity<ProfileResponse> create(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody CreateProfileRequest request) {
-        ProfileResponse response = profileService.create(user.getId(), request);
-        URI location = URI.create("/profiles/" + response.id());
-        return ResponseEntity.created(location).body(response);
-    }
-
-    @PutMapping("/{id}")
+    @PutMapping
     @Operation(summary = "Update a profile")
     public ResponseEntity<ProfileResponse> update(
-            @PathVariable UUID id,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody UpdateProfileRequest request) {
-        return ResponseEntity.ok(profileService.update(id, request));
+        return ResponseEntity.ok(profileService.update(user, request));
     }
 
-    @PatchMapping(value = "/{id}/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload or update profile picture")
     public ResponseEntity<ProfileResponse> updateProfilePicture(
-            @PathVariable UUID id,
+            @AuthenticationPrincipal User user,
             @RequestPart("file") MultipartFile picture) {
-        return ResponseEntity.ok(profileService.updateProfilePicture(id, picture));
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a profile")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        profileService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(profileService.updateProfilePicture(user, picture));
     }
 }
