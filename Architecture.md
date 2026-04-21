@@ -212,15 +212,15 @@ chore: atualiza dependência nimbus-jose-jwt para 9.37.3
 
 ## ✅ Checklist de Segurança
 
-- [ ] JWT gerado com Nimbus JOSE (sem legado JWK manual)
-- [ ] Senhas hasheadas com Argon2 (sem BCrypt)
+- [ * ] JWT gerado com Nimbus JOSE (sem legado JWK manual)
+- [ * ] Senhas hasheadas com Argon2 (sem BCrypt)
 - [ ] Login Google OAuth2 funcional
-- [ ] Refresh Token com rotação implementado
-- [ ] Todos os DTOs com `@Valid` e Bean Validation
-- [ ] Zero SQL nativo concatenado (JPQL parametrizado / Criteria API)
-- [ ] CORS configurado por perfil
-- [ ] Actuator expondo apenas endpoints necessários
+- [ * ] Refresh Token com rotação implementado
+- [ * ] Todos os DTOs com `@Valid` e Bean Validation
+- [ * ] Zero SQL nativo concatenado (JPQL parametrizado / Criteria API)
+- [ * ] CORS configurado por perfil
+- [ * ] Actuator expondo apenas endpoints necessários
 - [ ] Rate limiting ativo em produção
 - [ ] Headers de segurança (HSTS, X-Content-Type, etc.)
-- [ ] Secrets via variáveis de ambiente (nunca no código)
+- [ * ] Secrets via variáveis de ambiente (nunca no código)
 - [ ] Testes cobrindo fluxos de autenticação e autorização

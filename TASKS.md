@@ -2,9 +2,9 @@
 
 ## 👤 User
 
-- [ ] Get user profile (by id / me)
-- [ ] Update user profile
-- [ ] Upload profile picture (S3 / StorageClient)
+- [ * ] Get user profile (by id / me)
+- [ * ] Update user profile
+- [ * ] Upload profile picture (S3 / StorageClient)
 - [ ] Follow user
 - [ ] Unfollow user
 - [ ] List followers
@@ -16,12 +16,12 @@
 
 ## 📝 Posts
 
-- [ ] Create post
-- [ ] Update post
-- [ ] Delete post
-- [ ] Get post by id
-- [ ] List posts (global feed)
-- [ ] List posts by user
+- [ * ] Create post
+- [ * ] Update post
+- [ * ] Delete post
+- [ * ] Get post by id
+- [ * ] List posts (global feed)
+- [ * ] List posts by user
 - [ ] Pagination (Pageable / custom pagination)
 - [ ] Post visibility (PUBLIC / PRIVATE / FOLLOWERS)
 - [ ] Upload media (image/video) via StorageClient
@@ -42,10 +42,10 @@
 
 ## 💬 Comments
 
-- [ ] Create comment
+- [ * ] Create comment
 - [ ] Update comment
-- [ ] Delete comment
-- [ ] List comments by post
+- [ * ] Delete comment
+- [ * ] List comments by post
 - [ ] Nested comments (replies)
 - [ ] Count comments per post
 
@@ -86,24 +86,23 @@
 
 ## 📦 Storage (S3 / B2 / compatible)/ LUCAS
 
-- [ ] Implement upload file service
-- [ ] Generate signed URLs
-- [ ] Delete file
-- [ ] File validation (size/type)
-- [ ] Folder structure (users/posts)
+- [ * ] Implement upload file service
+- [ * ] Generate signed URLs
+- [ * ] Delete file
+- [ * ] File validation (size/type)
+- [ * ] Folder structure (users/posts)
 
 ---
 
 ## 📦 Email (Braver/ compatible)/ LUCAS
 
-- [ ] Implement manager email service
-- 
+- [ * ] Implement manager email service
 ---
 
 ## 🔐 Security/ LUCAS
 
-- [ ] Role-based authorization (USER / ADMIN)
-- [ ] Method security (@PreAuthorize)
+- [ * ] Role-based authorization (USER / ADMIN)
+- [ * ] Method security (@PreAuthorize)
 - [ ] Rate limiting (Bucket4j / filter)
 - [ ] Input sanitization
 - [ ] Brute force protection (login attempts)
@@ -162,10 +161,10 @@
 
 ## 📚 Docs
 
-- [ ] Document all endpoints (Swagger)
+- [ * ] Document all endpoints (Swagger)
 - [ ] Add examples (request/response)
 - [ ] Document WebSocket usage
-- [ ] README improvements
+- [ * ] README improvements
 - [ ] Architecture diagrams
 
 ---
@@ -185,19 +184,17 @@
 
 - [ ] Improve exception handling
 - [ ] Standardize API responses
-- [ ] Remove duplicated code
-- [ ] Improve logging (structured logs)
-- [ ] Validate DTOs with @Valid everywhere
+- [ * ] Remove duplicated code
+- [ * ] Improve logging (structured logs)
+- [ * ] Validate DTOs with @Valid everywhere
 
 ---
 
 ## 🚀 DevOps / LUCAS + VOLUNTARIO
 
-- [ ] Improve Dockerfile (multi-stage build)
-- [ ] Environment separation (dev/prod)
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Auto build + test on PR
-- [ ] Secrets management
+- [ * ] Improve Dockerfile (multi-stage build)
+- [ * ] Environment separation (dev/prod)
+- [ * ] Secrets management
 
 ---
 
@@ -216,13 +213,13 @@
 ## 🧑‍💻 Team Rules
 
 - [ ] Use conventional commits:
-    - feat:
-    - fix:
-    - docs:
-    - refactor:
-    - test:
-    - chore:
-    - wip:
+  - feat:
+  - fix:
+  - docs:
+  - refactor:
+  - test:
+  - chore:
+  - wip:
 
 - [ ] Keep commits small and clear
 - [ ] Never commit directly to main
