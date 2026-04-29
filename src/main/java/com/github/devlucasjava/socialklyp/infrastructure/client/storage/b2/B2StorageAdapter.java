@@ -80,7 +80,6 @@ public class B2StorageAdapter implements StoragePort {
 
         return switch (mediaType) {
             case IMAGE -> prefix + "/photos";
-            case VIDEO -> prefix + "/videos";
             default -> prefix + "/misc";
         };
     }
