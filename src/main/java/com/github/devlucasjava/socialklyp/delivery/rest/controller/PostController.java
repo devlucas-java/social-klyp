@@ -44,10 +44,21 @@ public class PostController {
         return ResponseEntity.ok(postService.findMy(user, pageable));
     }
 
+    @GetMapping("/profile/{profileId}")
+    @Operation(summary = "List posts by profile ID (only accessible if profile is public or requester follows the owner)")
+    public ResponseEntity<Page<PostResponse>> findByProfile(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID profileId,
+            Pageable pageable) {
+        return ResponseEntity.ok(postService.findByProfile(user, profileId, pageable));
+    }
+
     @GetMapping("/{id}")
-    @Operation(summary = "Get a post by ID")
-    public ResponseEntity<PostResponse> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(postService.findById(id));
+    @Operation(summary = "Get a post by ID (only accessible if profile is public or requester follows the owner)")
+    public ResponseEntity<PostResponse> findById(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(postService.findById(user, id));
     }
 
     @PostMapping
