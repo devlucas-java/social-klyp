@@ -35,7 +35,7 @@ public class Comment {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id")
     private Profile profile;
 

@@ -53,17 +53,19 @@ public class CommentController {
     @Operation(summary = "Update a comment")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable UUID commentId,
+            @PathVariable UUID postId,
             @AuthenticationPrincipal User auth,
             @Valid @RequestBody UpdateCommentRequest request) {
-        return ResponseEntity.ok(commentService.updateComment(commentId, auth, request));
+        return ResponseEntity.ok(commentService.updateComment(postId, commentId, auth, request));
     }
 
     @DeleteMapping("/{commentId}")
     @Operation(summary = "Delete a comment")
     public ResponseEntity<Void> deleteComment(
             @PathVariable UUID commentId,
+            @PathVariable UUID postId,
             @AuthenticationPrincipal User auth) {
-        commentService.deleteComment(commentId, auth);
+        commentService.deleteComment(postId, commentId, auth);
         return ResponseEntity.noContent().build();
     }
 }

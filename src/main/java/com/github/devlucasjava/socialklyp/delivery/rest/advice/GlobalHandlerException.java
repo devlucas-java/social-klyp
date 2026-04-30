@@ -105,6 +105,10 @@ public class GlobalHandlerException {
         return build(HttpStatus.FORBIDDEN, ex.getMessage(), null);
     }
 
+    @ExceptionHandler(UnauthorizeException.class)
+    public ResponseEntity<ResponseErrorsDTO> handleUnauthorizeException(UnauthorizeException ex) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), null);
+    }
 
     @ExceptionHandler(StorageBadGatewayException.class)
     public ResponseEntity<ResponseErrorsDTO> handlerStorageBadGateWayException(StorageBadGatewayException ex) {

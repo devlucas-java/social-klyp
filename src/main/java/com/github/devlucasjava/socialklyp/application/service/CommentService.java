@@ -5,6 +5,7 @@ import com.github.devlucasjava.socialklyp.application.dto.request.comment.Update
 import com.github.devlucasjava.socialklyp.application.dto.response.comment.CommentResponse;
 import com.github.devlucasjava.socialklyp.application.mapper.CommentMapper;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
+import com.github.devlucasjava.socialklyp.delivery.rest.advice.UnauthorizeException;
 import com.github.devlucasjava.socialklyp.domain.entity.Comment;
 import com.github.devlucasjava.socialklyp.domain.entity.Post;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
@@ -45,28 +46,36 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setContent(request.content());
         comment.setProfile(profile);
+        comment.setPost(post);
 
         return commentMapper.toResponse(commentRepository.save(comment));
     }
 
     @Transactional
-    public CommentResponse updateComment(UUID commentId, User auth, UpdateCommentRequest request) {
+    public CommentResponse updateComment(UUID postId, UUID commentId, User auth, UpdateCommentRequest request) {
         Comment comment = findCommentOrThrow(commentId);
         validateCommentOwnership(comment, auth);
+        if (!commentRepository.existsByIdAndPostId(commentId, postId)){
+            throw new ResourceNotFoundException("Comment not found with id: " + commentId + " in post with id: " + postId);
+        }
         comment.setContent(request.content());
         return commentMapper.toResponse(commentRepository.save(comment));
     }
 
     @Transactional
-    public void deleteComment(UUID commentId, User auth) {
+    public void deleteComment(UUID postId, UUID commentId, User auth) {
         Comment comment = findCommentOrThrow(commentId);
+        findPostOrThrow(postId);
+        if (!commentRepository.existsByIdAndPostId(commentId, postId)){
+            throw new ResourceNotFoundException("Comment not found with id: " + commentId + " in post with id: " + postId);
+        }
         validateCommentOwnership(comment, auth);
         commentRepository.delete(comment);
     }
 
     private void validateCommentOwnership(Comment comment, User auth) {
-        if (!comment.getProfile().getId().equals(findProfileByUserOrThrow(auth).getId())) {
-            throw new IllegalStateException("Profile does not own this comment");
+        if (!comment.getProfile().getUser().getId().equals(auth.getId())) {
+            throw new UnauthorizeException("User does not own this comment");
         }
     }
 
@@ -78,10 +87,5 @@ public class CommentService {
     private Post findPostOrThrow(UUID postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
-    }
-
-    private Profile findProfileByUserOrThrow(User user) {
-        return profileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Profile not found by user: " + user.getId()));
     }
 }

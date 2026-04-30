@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
     Page<Comment> findAllByPostId(UUID postId, Pageable pageable);
+    boolean existsByIdAndPostId(UUID commentId, UUID postId);
 }
