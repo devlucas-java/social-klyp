@@ -32,18 +32,18 @@
 
 ## ❤️ Likes
 
-- [ ] Like post
-- [ ] Unlike post
-- [ ] Count likes per post
-- [ ] Check if user liked post
-- [ ] List users who liked a post
+- [ * ] Like post
+- [ * ] Unlike post
+- [ * ] Count likes per post
+- [ * ] Check if user liked post
+- [  ] List users who liked a post
 
 ---
 
 ## 💬 Comments
 
 - [ * ] Create comment
-- [ ] Update comment
+- [ * ] Update comment
 - [ * ] Delete comment
 - [ * ] List comments by post
 - [ ] Nested comments (replies)

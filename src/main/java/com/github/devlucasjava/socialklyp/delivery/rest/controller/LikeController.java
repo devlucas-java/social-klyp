@@ -1,6 +1,7 @@
 package com.github.devlucasjava.socialklyp.delivery.rest.controller;
 
 import com.github.devlucasjava.socialklyp.application.dto.response.like.LikeResponse;
+import com.github.devlucasjava.socialklyp.application.dto.response.utils.BooleanDTO;
 import com.github.devlucasjava.socialklyp.application.service.LikeService;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +37,14 @@ public class LikeController {
             @PathVariable UUID postId,
             @AuthenticationPrincipal User auth) {
         return ResponseEntity.ok(likeService.likePost(postId, auth));
+    }
+
+    @GetMapping
+    @Operation(summary = "Like a post")
+    public ResponseEntity<BooleanDTO> hasLikePost(
+            @PathVariable UUID postId,
+            @AuthenticationPrincipal User auth) {
+        return ResponseEntity.ok(likeService.hasLikePost(postId, auth));
     }
 
     @DeleteMapping

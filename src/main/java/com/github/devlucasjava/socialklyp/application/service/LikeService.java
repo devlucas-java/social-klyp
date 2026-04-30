@@ -1,6 +1,7 @@
 package com.github.devlucasjava.socialklyp.application.service;
 
 import com.github.devlucasjava.socialklyp.application.dto.response.like.LikeResponse;
+import com.github.devlucasjava.socialklyp.application.dto.response.utils.BooleanDTO;
 import com.github.devlucasjava.socialklyp.application.mapper.LikeMapper;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ConflictException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
@@ -25,6 +26,15 @@ public class LikeService {
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
     private final LikeMapper likeMapper;
+
+    public BooleanDTO hasLikePost(UUID postId, User auth) {
+        Profile profile = findProfileByUserAuthenticatedOrThrow(auth);
+        findPostOrThrow(postId);
+
+        boolean alreadyLiked = likeRepository.existsByProfileIdAndPostId(profile.getId(), postId);
+
+        return BooleanDTO.builder().valid(alreadyLiked).build();
+    }
 
     @Transactional
     public LikeResponse likePost(UUID postId, User auth) {
