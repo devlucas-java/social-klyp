@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MediaMapper {
 
-    private final StoragePort storagePort;
-
     public MediaResponse toResponse(Media media) {
         MediaResponse dto = new MediaResponse();
 

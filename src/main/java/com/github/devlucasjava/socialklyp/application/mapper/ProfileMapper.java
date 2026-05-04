@@ -1,6 +1,5 @@
 package com.github.devlucasjava.socialklyp.application.mapper;
 
-import com.github.devlucasjava.socialklyp.application.dto.request.profile.CreateProfileRequest;
 import com.github.devlucasjava.socialklyp.application.dto.response.profile.ProfileResponse;
 import com.github.devlucasjava.socialklyp.application.dto.response.profile.ProfileSummary;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
