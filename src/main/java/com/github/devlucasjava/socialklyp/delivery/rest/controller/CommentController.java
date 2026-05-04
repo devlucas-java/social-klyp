@@ -6,6 +6,11 @@ import com.github.devlucasjava.socialklyp.application.dto.response.comment.Comme
 import com.github.devlucasjava.socialklyp.application.service.CommentService;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,17 +36,27 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    @Operation(summary = "List all comments of a post")
+    @Operation(summary = "List comments", description = "Returns all comments of a post, paginated")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Comments returned"),
+            @ApiResponse(responseCode = "404", description = "Post not found", content = @Content)
+    })
     public ResponseEntity<Page<CommentResponse>> findAllByPost(
-            @PathVariable UUID postId,
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID postId,
             Pageable pageable) {
         return ResponseEntity.ok(commentService.findAllByPost(postId, pageable));
     }
 
     @PostMapping
-    @Operation(summary = "Add a comment to a post")
+    @Operation(summary = "Add comment", description = "Adds a comment to a post")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Comment created",
+                    content = @Content(schema = @Schema(implementation = CommentResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Post or profile not found", content = @Content)
+    })
     public ResponseEntity<CommentResponse> addComment(
-            @PathVariable UUID postId,
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID postId,
             @AuthenticationPrincipal User auth,
             @Valid @RequestBody CreateCommentRequest request) {
         CommentResponse response = commentService.addComment(postId, auth, request);
@@ -50,20 +65,32 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    @Operation(summary = "Update a comment")
+    @Operation(summary = "Update comment", description = "Updates a comment's content (owner only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Comment updated",
+                    content = @Content(schema = @Schema(implementation = CommentResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Not the comment owner", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Comment or post not found", content = @Content)
+    })
     public ResponseEntity<CommentResponse> updateComment(
-            @PathVariable UUID commentId,
-            @PathVariable UUID postId,
+            @Parameter(description = "Comment UUID", required = true) @PathVariable UUID commentId,
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID postId,
             @AuthenticationPrincipal User auth,
             @Valid @RequestBody UpdateCommentRequest request) {
         return ResponseEntity.ok(commentService.updateComment(postId, commentId, auth, request));
     }
 
     @DeleteMapping("/{commentId}")
-    @Operation(summary = "Delete a comment")
+    @Operation(summary = "Delete comment", description = "Deletes a comment (owner only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Comment deleted"),
+            @ApiResponse(responseCode = "401", description = "Not the comment owner", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Comment or post not found", content = @Content)
+    })
     public ResponseEntity<Void> deleteComment(
-            @PathVariable UUID commentId,
-            @PathVariable UUID postId,
+            @Parameter(description = "Comment UUID", required = true) @PathVariable UUID commentId,
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID postId,
             @AuthenticationPrincipal User auth) {
         commentService.deleteComment(postId, commentId, auth);
         return ResponseEntity.noContent().build();

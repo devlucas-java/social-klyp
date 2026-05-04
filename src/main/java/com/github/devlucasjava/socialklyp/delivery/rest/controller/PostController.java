@@ -6,6 +6,11 @@ import com.github.devlucasjava.socialklyp.application.dto.response.post.PostResp
 import com.github.devlucasjava.socialklyp.application.service.PostService;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,13 +36,20 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    @Operation(summary = "List all posts paginated")
+    @Operation(summary = "List public posts", description = "Returns a paginated list of posts from public profiles only")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Posts returned successfully")
+    })
     public ResponseEntity<Page<PostResponse>> findAll(Pageable pageable) {
         return ResponseEntity.ok(postService.findAll(pageable));
     }
 
     @GetMapping("/me")
-    @Operation(summary = "List posts of the authenticated user")
+    @Operation(summary = "List my posts", description = "Returns all posts created by the authenticated user")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Posts returned"),
+            @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content)
+    })
     public ResponseEntity<Page<PostResponse>> findMy(
             @AuthenticationPrincipal User user,
             Pageable pageable) {
@@ -45,24 +57,47 @@ public class PostController {
     }
 
     @GetMapping("/profile/{profileId}")
-    @Operation(summary = "List posts by profile ID (only accessible if profile is public or requester follows the owner)")
+    @Operation(
+            summary = "List posts by profile",
+            description = "Returns posts of a given profile. Private profiles require the requester to be a follower"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Posts returned"),
+            @ApiResponse(responseCode = "403", description = "Profile is private and requester is not a follower", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content)
+    })
     public ResponseEntity<Page<PostResponse>> findByProfile(
             @AuthenticationPrincipal User user,
-            @PathVariable UUID profileId,
+            @Parameter(description = "Profile UUID", required = true) @PathVariable UUID profileId,
             Pageable pageable) {
         return ResponseEntity.ok(postService.findByProfile(user, profileId, pageable));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a post by ID (only accessible if profile is public or requester follows the owner)")
+    @Operation(
+            summary = "Get post by ID",
+            description = "Returns a post. Private profile posts require the requester to be a follower"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Post found",
+                    content = @Content(schema = @Schema(implementation = PostResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Profile is private and requester is not a follower", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Post not found", content = @Content)
+    })
     public ResponseEntity<PostResponse> findById(
             @AuthenticationPrincipal User user,
-            @PathVariable UUID id) {
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID id) {
         return ResponseEntity.ok(postService.findById(user, id));
     }
 
     @PostMapping
-    @Operation(summary = "Create a new post")
+    @Operation(summary = "Create post", description = "Creates a new post for the authenticated user's profile")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Post created",
+                    content = @Content(schema = @Schema(implementation = PostResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Profile not found", content = @Content)
+    })
     public ResponseEntity<PostResponse> create(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody CreatePostRequest request) {
@@ -72,20 +107,32 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update a post")
+    @Operation(summary = "Update post", description = "Updates the content of a post (owner only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Post updated",
+                    content = @Content(schema = @Schema(implementation = PostResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not the post owner", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Post not found", content = @Content)
+    })
     public ResponseEntity<PostResponse> update(
-            @PathVariable UUID id,
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID id,
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UpdatePostRequest request) {
-        return ResponseEntity.ok(postService.update(id,user, request));
+        return ResponseEntity.ok(postService.update(id, user, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a post")
+    @Operation(summary = "Delete post", description = "Deletes a post (owner only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Post deleted"),
+            @ApiResponse(responseCode = "403", description = "Not the post owner", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Post not found", content = @Content)
+    })
     public ResponseEntity<Void> delete(
             @AuthenticationPrincipal User user,
-            @PathVariable UUID postId) {
-        postService.delete(user, postId);
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID id) {
+        postService.delete(user, id);
         return ResponseEntity.noContent().build();
     }
 }
