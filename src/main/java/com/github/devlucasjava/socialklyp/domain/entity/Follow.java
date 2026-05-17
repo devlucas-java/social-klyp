@@ -28,12 +28,12 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "follower_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "follower_id")
     private Profile follower;
 
-    @ManyToOne
-    @JoinColumn(name = "following_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "following_id")
     private Profile following;
 
     @Column(nullable = false, updatable = false)

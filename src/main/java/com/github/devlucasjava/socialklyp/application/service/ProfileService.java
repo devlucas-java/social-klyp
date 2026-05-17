@@ -1,19 +1,17 @@
 package com.github.devlucasjava.socialklyp.application.service;
 
-import com.github.devlucasjava.socialklyp.application.dto.request.profile.CreateProfileRequest;
 import com.github.devlucasjava.socialklyp.application.dto.request.profile.UpdateProfileRequest;
 import com.github.devlucasjava.socialklyp.application.dto.response.profile.ProfileResponse;
 import com.github.devlucasjava.socialklyp.application.mapper.ProfileMapper;
 import com.github.devlucasjava.socialklyp.application.validator.FileValidator;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.FileReadException;
+import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
 import com.github.devlucasjava.socialklyp.domain.enums.MediaType;
 import com.github.devlucasjava.socialklyp.infrastructure.client.port.StoragePort;
 import com.github.devlucasjava.socialklyp.infrastructure.client.storage.b2.dto.response.upload.B2UploadFileResponse;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
-import com.github.devlucasjava.socialklyp.infrastructure.database.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,16 +25,16 @@ import java.util.UUID;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final UserRepository userRepository;
     private final FileValidator fileValidator;
     private final ProfileMapper profileMapper;
     private final StoragePort storagePort;
 
     @Transactional(readOnly = true)
     public Object findById(UUID id) {
-        Profile profile = findProfileOrThrow(id);
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + id));
 
-        if( profile.isPrivate() ){
+        if (profile.isPrivate()) {
             return profileMapper.toSummary(profile);
         }
 
@@ -44,38 +42,32 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ProfileResponse findByUserId(UUID userId) {
-        return profileRepository.findByUserId(userId)
-                .map(profileMapper::toResponse)
-                .orElseThrow(() -> new EntityNotFoundException("Profile not found for user id: " + userId));
+    public ProfileResponse findByUser(User auth) {
+        Profile profile = findProfileByUserOrThrow(auth);
+        return profileMapper.toResponse(profile);
     }
 
     @Transactional
-    public ProfileResponse create(UUID userId, CreateProfileRequest request) {
-        User user = findUserOrThrow(userId);
+    public ProfileResponse update(User auth, UpdateProfileRequest request) {
+        Profile profile = findProfileByUserOrThrow(auth);
 
-        if (profileRepository.existsByUserId(userId)) {
-            throw new IllegalStateException("User already has a profile");
+        if (request.bio() != null && !request.bio().isEmpty()) {
+            profile.setBio(request.bio());
         }
-
-        Profile profile = profileMapper.toEntity(request);
-        profile.setUser(user);
-
+        if (request.displayName() != null &&
+                !request.displayName().isBlank() &&
+                request.displayName().trim().length() > 3) {
+            profile.setDisplayName(request.displayName());
+        }
+        if (request.isPrivate() != null) {
+            profile.setPrivate(request.isPrivate());
+        }
         return profileMapper.toResponse(profileRepository.save(profile));
     }
 
     @Transactional
-    public ProfileResponse update(UUID id, UpdateProfileRequest request) {
-        Profile profile = findProfileOrThrow(id);
-        profile.setDisplayName(request.displayName());
-        profile.setBio(request.bio());
-        profile.setPrivate(request.isPrivate());
-        return profileMapper.toResponse(profileRepository.save(profile));
-    }
-
-    @Transactional
-    public ProfileResponse updateProfilePicture(UUID id, MultipartFile picture) {
-        Profile profile = findProfileOrThrow(id);
+    public ProfileResponse updateProfilePicture(User auth, MultipartFile picture) {
+        Profile profile = findProfileByUserOrThrow(auth);
 
         fileValidator.validateImageOnly(picture);
 
@@ -97,19 +89,8 @@ public class ProfileService {
         return profileMapper.toResponse(profileRepository.save(profile));
     }
 
-    @Transactional
-    public void delete(UUID id) {
-        findProfileOrThrow(id);
-        profileRepository.deleteById(id);
-    }
-
-    private Profile findProfileOrThrow(UUID id) {
-        return profileRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Profile not found with id: " + id));
-    }
-
-    private User findUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+    private Profile findProfileByUserOrThrow(User auth) {
+        return profileRepository.findByUser(auth)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with user: " + auth.getId()));
     }
 }

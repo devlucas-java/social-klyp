@@ -8,15 +8,13 @@ import jakarta.validation.constraints.Size;
 public record UpdateProfileRequest(
 
         @Schema(description = "Updated display name", example = "Jane Doe")
-        @NotBlank(message = "Display name must not be blank")
         @Size(max = 100, message = "Display name must not exceed 100 characters")
         String displayName,
 
         @Schema(description = "Updated bio", example = "Now a full-stack dev!")
-        @NotBlank(message = "Bio must not be blank")
         @Size(max = 300, message = "Bio must not exceed 300 characters")
         String bio,
 
         @Schema(description = "Whether the profile is private")
-        boolean isPrivate
+        Boolean isPrivate
 ) {}

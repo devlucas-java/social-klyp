@@ -4,9 +4,12 @@ import com.github.devlucasjava.socialklyp.application.dto.request.comment.Create
 import com.github.devlucasjava.socialklyp.application.dto.request.comment.UpdateCommentRequest;
 import com.github.devlucasjava.socialklyp.application.dto.response.comment.CommentResponse;
 import com.github.devlucasjava.socialklyp.application.mapper.CommentMapper;
+import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
+import com.github.devlucasjava.socialklyp.delivery.rest.advice.UnauthorizeException;
 import com.github.devlucasjava.socialklyp.domain.entity.Comment;
 import com.github.devlucasjava.socialklyp.domain.entity.Post;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
+import com.github.devlucasjava.socialklyp.domain.entity.User;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.CommentRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.PostRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
@@ -35,46 +38,54 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse addComment(UUID postId, UUID profileId, CreateCommentRequest request) {
+    public CommentResponse addComment(UUID postId, User auth, CreateCommentRequest request) {
         Post post = findPostOrThrow(postId);
-        Profile profile = profileRepository.findById(profileId)
-                .orElseThrow(() -> new EntityNotFoundException("Profile not found with id: " + profileId));
+        Profile profile = profileRepository.findByUser(auth)
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found by user: " + auth.getId()));
 
         Comment comment = new Comment();
         comment.setContent(request.content());
         comment.setProfile(profile);
+        comment.setPost(post);
 
         return commentMapper.toResponse(commentRepository.save(comment));
     }
 
     @Transactional
-    public CommentResponse updateComment(UUID commentId, UUID profileId, UpdateCommentRequest request) {
+    public CommentResponse updateComment(UUID postId, UUID commentId, User auth, UpdateCommentRequest request) {
         Comment comment = findCommentOrThrow(commentId);
-        validateCommentOwnership(comment, profileId);
+        validateCommentOwnership(comment, auth);
+        if (!commentRepository.existsByIdAndPostId(commentId, postId)){
+            throw new ResourceNotFoundException("Comment not found with id: " + commentId + " in post with id: " + postId);
+        }
         comment.setContent(request.content());
         return commentMapper.toResponse(commentRepository.save(comment));
     }
 
     @Transactional
-    public void deleteComment(UUID commentId, UUID profileId) {
+    public void deleteComment(UUID postId, UUID commentId, User auth) {
         Comment comment = findCommentOrThrow(commentId);
-        validateCommentOwnership(comment, profileId);
+        findPostOrThrow(postId);
+        if (!commentRepository.existsByIdAndPostId(commentId, postId)){
+            throw new ResourceNotFoundException("Comment not found with id: " + commentId + " in post with id: " + postId);
+        }
+        validateCommentOwnership(comment, auth);
         commentRepository.delete(comment);
     }
 
-    private void validateCommentOwnership(Comment comment, UUID profileId) {
-        if (!comment.getProfile().getId().equals(profileId)) {
-            throw new IllegalStateException("Profile does not own this comment");
+    private void validateCommentOwnership(Comment comment, User auth) {
+        if (!comment.getProfile().getUser().getId().equals(auth.getId())) {
+            throw new UnauthorizeException("User does not own this comment");
         }
     }
 
     private Comment findCommentOrThrow(UUID commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
     }
 
     private Post findPostOrThrow(UUID postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
     }
 }

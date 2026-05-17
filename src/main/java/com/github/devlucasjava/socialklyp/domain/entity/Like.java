@@ -23,11 +23,11 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "profile_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 }

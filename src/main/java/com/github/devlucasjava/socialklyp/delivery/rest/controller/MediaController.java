@@ -3,6 +3,11 @@ package com.github.devlucasjava.socialklyp.delivery.rest.controller;
 import com.github.devlucasjava.socialklyp.application.dto.response.media.MediaResponse;
 import com.github.devlucasjava.socialklyp.application.service.MediaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +32,27 @@ public class MediaController {
     private final MediaService mediaService;
 
     @GetMapping
-    @Operation(summary = "List all media of a post")
-    public ResponseEntity<List<MediaResponse>> findAllByPost(@PathVariable UUID postId) {
+    @Operation(summary = "List media", description = "Returns all media files attached to a post")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Media list returned"),
+            @ApiResponse(responseCode = "404", description = "Post not found", content = @Content)
+    })
+    public ResponseEntity<List<MediaResponse>> findAllByPost(
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID postId) {
         return ResponseEntity.ok(mediaService.findAllByPost(postId));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload a media file to a post")
+    @Operation(summary = "Upload media", description = "Uploads an image to a post (max 5MB, images only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Media uploaded",
+                    content = @Content(schema = @Schema(implementation = MediaResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid file (not an image or exceeds 5MB)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Post not found", content = @Content)
+    })
     public ResponseEntity<MediaResponse> upload(
-            @PathVariable UUID postId,
+            @Parameter(description = "Post UUID", required = true) @PathVariable UUID postId,
+            @Parameter(description = "Image file", required = true)
             @RequestPart("file") MultipartFile file) {
         MediaResponse response = mediaService.uploadToPost(postId, file);
         URI location = URI.create("/posts/" + postId + "/media/" + response.getId());
@@ -43,10 +60,13 @@ public class MediaController {
     }
 
     @DeleteMapping("/{mediaId}")
-    @Operation(summary = "Delete a media from a post")
+    @Operation(summary = "Delete media", description = "Deletes a media file from storage and database")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Media deleted"),
+            @ApiResponse(responseCode = "404", description = "Media not found", content = @Content)
+    })
     public ResponseEntity<Void> delete(
-            //@PathVariable UUID postId,
-            @PathVariable UUID mediaId) {
+            @Parameter(description = "Media UUID", required = true) @PathVariable UUID mediaId) {
         mediaService.delete(mediaId);
         return ResponseEntity.noContent().build();
     }

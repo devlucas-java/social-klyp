@@ -31,8 +31,6 @@ public class MediaService {
     private final FileValidator fileValidator;
     private final MediaMapper mediaMapper;
     private final StoragePort storagePort;
-    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-    private static final long MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 
     @Transactional(readOnly = true)
     public List<MediaResponse> findAllByPost(UUID postId) {
@@ -47,12 +45,10 @@ public class MediaService {
 
     @Transactional
     public MediaResponse uploadToPost(UUID postId, MultipartFile file) {
-        fileValidator.validateImageOrVideo(file);
+        fileValidator.validateImageOnly(file);
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
-
-        MediaType mediaType = resolveMediaType(file.getContentType());
 
         B2UploadFileResponse result;
         try {
@@ -62,7 +58,7 @@ public class MediaService {
                     file.getOriginalFilename(),
                     file.getContentType(),
                     false,
-                    mediaType
+                    MediaType.IMAGE
             );
         } catch (IOException e) {
             throw new FileReadException("Error uploading file");
@@ -73,7 +69,7 @@ public class MediaService {
         media.setMediaId(result.fileId());
         media.setMediaUrl(result.fileUrl());
         media.setMediaName(result.fileName());
-        media.setMediaType(mediaType);
+        media.setMediaType(MediaType.IMAGE);
 
         return mediaMapper.toResponse(mediaRepository.save(media));
     }
@@ -86,13 +82,5 @@ public class MediaService {
 
         storagePort.delete(media.getMediaId(), media.getMediaName());
         mediaRepository.delete(media);
-    }
-
-
-    private MediaType resolveMediaType(String contentType) {
-        if (contentType != null && contentType.startsWith("video")) {
-            return MediaType.VIDEO;
-        }
-        return MediaType.IMAGE;
     }
 }
