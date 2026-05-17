@@ -1,0 +1,159 @@
+<mxfile host="65bd71144e">
+    <diagram id="DebdibgaU8-ExvmIf8IF" name="Page-1">
+        <mxGraphModel dx="768" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="1">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="Social Klyp — High-Level Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#F0F0F0;labelBorderColor=default;" parent="1" vertex="1">
+                    <mxGeometry x="427" y="20" width="800" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="client-zone" value="Client Zone" style="swimlane;startSize=30;fillColor=none;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="20" y="70" width="260" height="280" as="geometry"/>
+                </mxCell>
+                <mxCell id="web-client" value="🌐 Web Browser&#10;(React / Vue / Angular)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontSize=11;fontStyle=1;" parent="client-zone" vertex="1">
+                    <mxGeometry x="30" y="50" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="mobile-client" value="📱 Mobile App&#10;(iOS / Android)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontSize=11;fontStyle=1;" parent="client-zone" vertex="1">
+                    <mxGeometry x="30" y="140" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="postman-client" value="🔧 Postman / API Client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontSize=11;" parent="client-zone" vertex="1">
+                    <mxGeometry x="30" y="220" width="200" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="app-zone" value="" style="swimlane;startSize=35;fillColor=none;strokeColor=#343a40;fontStyle=1;fontSize=13;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="80" width="920" height="630" as="geometry"/>
+                </mxCell>
+                <mxCell id="delivery-layer" value="Delivery Layer" style="swimlane;startSize=28;fillColor=none;strokeColor=#9673a6;fontStyle=1;fontSize=12;rounded=1;" parent="app-zone" vertex="1">
+                    <mxGeometry x="20" y="50" width="880" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="rest-controllers" value="REST Controllers&#10;AuthController · ProfileController · PostController&#10;CommentController · LikeController · MediaController&#10;FollowController · ChatController · MessageController · LinkController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontSize=10;" parent="delivery-layer" vertex="1">
+                    <mxGeometry x="20" y="40" width="400" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="ws-controller" value="WebSocket Controller&#10;ChatWebSocketController&#10;STOMP · /app/chat/{id}/send|edit|delete|typing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontSize=10;" parent="delivery-layer" vertex="1">
+                    <mxGeometry x="440" y="40" width="280" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="exception-handler" value="GlobalExceptionHandler&#10;+ JwtAuthFilter&#10;+ RequestLoggingFilter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontSize=10;" parent="delivery-layer" vertex="1">
+                    <mxGeometry x="740" y="40" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="app-layer" value="Application Layer" style="swimlane;startSize=28;fillColor=none;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;rounded=1;" parent="app-zone" vertex="1">
+                    <mxGeometry x="20" y="230" width="880" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="services" value="Services&#10;AuthService · ProfileService · PostService · CommentService&#10;LikeService · MediaService · FollowService&#10;ChatService · MessageService · LinkService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontSize=10;" parent="app-layer" vertex="1">
+                    <mxGeometry x="20" y="40" width="400" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="mappers-dtos" value="Mappers &amp; DTOs&#10;10 Mappers (Entity → DTO)&#10;Request DTOs · Response DTOs&#10;WebSocket DTOs (WsInbound/Outbound/Edit/Delete/Typing)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontSize=10;" parent="app-layer" vertex="1">
+                    <mxGeometry x="440" y="40" width="420" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="domain-layer" value="Domain Layer" style="swimlane;startSize=28;fillColor=none;strokeColor=#d6b656;fontStyle=1;fontSize=12;rounded=1;" parent="app-zone" vertex="1">
+                    <mxGeometry x="20" y="410" width="880" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="entities" value="Entities&#10;User · Profile · Post · Comment · Like · Media · Follow · Chat · Message · Link · TokenVerify" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontSize=10;" parent="domain-layer" vertex="1">
+                    <mxGeometry x="20" y="40" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="enums" value="Enums&#10;Role · MediaType" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontSize=10;" parent="domain-layer" vertex="1">
+                    <mxGeometry x="540" y="40" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="exceptions" value="Exceptions&#10;ResourceNotFound · Forbidden&#10;Conflict · Unauthorize · InvalidFile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d6b656;fontSize=10;" parent="domain-layer" vertex="1">
+                    <mxGeometry x="720" y="40" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="infra-layer" value="Infrastructure Layer" style="swimlane;startSize=28;fillColor=none;strokeColor=#b85450;fontStyle=1;fontSize=12;rounded=1;" parent="app-zone" vertex="1">
+                    <mxGeometry x="20" y="550" width="880" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="infra-items" value="JPA Repositories · Security (JWT/Argon2/WebSocketAuth) · StoragePort (B2) · EmailClient · WebSocketConfig · JwtConfig · OpenApiConfig" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;fontSize=10;" parent="infra-layer" vertex="1">
+                    <mxGeometry x="20" y="40" width="840" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow-del-app" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#343a40;strokeWidth=2;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="app-zone" source="delivery-layer" target="app-layer" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow-app-dom" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#343a40;strokeWidth=2;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="app-zone" source="app-layer" target="domain-layer" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow-dom-infra" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#343a40;strokeWidth=2;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="app-zone" source="domain-layer" target="infra-layer" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ext-zone" value="External Services" style="swimlane;startSize=30;fillColor=none;strokeColor=#666666;fontStyle=1;fontSize=13;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="1370" y="100" width="260" height="500" as="geometry"/>
+                </mxCell>
+                <mxCell id="postgres" value="�� YugabiteDB&lt;br&gt;(Port 5432)&lt;br&gt;Primary Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" parent="ext-zone" vertex="1">
+                    <mxGeometry x="20" y="50" width="220" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="b2-storage" value="☁️ Backblaze B2&lt;br&gt;Object Storage&lt;br&gt;(Images)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;fontSize=11;fontStyle=1;" parent="ext-zone" vertex="1">
+                    <mxGeometry x="20" y="150" width="220" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="email-service" value="📧 Email Service&#10;(SendGrid / Brevo)&#10;Verification Emails" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d79b00;fontSize=11;fontStyle=1;" parent="ext-zone" vertex="1">
+                    <mxGeometry x="20" y="250" width="220" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="swagger-ui" value="📖 Swagger UI&#10;/swagger-ui.html&#10;API Documentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;fontSize=11;fontStyle=1;" parent="ext-zone" vertex="1">
+                    <mxGeometry x="20" y="350" width="220" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="actuator" value="📊 Spring Actuator&#10;/actuator&#10;Health · Metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;fontSize=11;fontStyle=1;" parent="ext-zone" vertex="1">
+                    <mxGeometry x="20" y="440" width="220" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="arrow-rest" value="HTTP/REST&#10;(Bearer JWT)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.4;entryX=0;entryY=0.3;strokeColor=#6c8ebf;strokeWidth=2;fontStyle=1;fontSize=10;" parent="1" source="web-client" target="rest-controllers" edge="1">
+                    <mxGeometry x="0.3204" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="250" y="200"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-ws" value="WebSocket&#10;STOMP (JWT)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.6;entryX=0.5;entryY=0;strokeColor=#82b366;strokeWidth=2;fontStyle=1;fontSize=10;entryDx=0;entryDy=0;" parent="1" source="web-client" target="ws-controller" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="270" y="156"/>
+                            <mxPoint x="270" y="110"/>
+                            <mxPoint x="960" y="110"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-mobile" value="HTTP/REST" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;" parent="1" source="mobile-client" target="rest-controllers" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="150" y="280"/>
+                            <mxPoint x="325" y="280"/>
+                            <mxPoint x="325" y="220"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-db" value="JPA / JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;" parent="1" source="infra-items" target="postgres" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1290" y="683"/>
+                            <mxPoint x="1290" y="185"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-storage" value="HTTP API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;fontSize=10;" parent="1" source="infra-items" target="b2-storage" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1320" y="683"/>
+                            <mxPoint x="1320" y="285"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow-email" value="SMTP / API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d79b00;strokeWidth=2;fontSize=10;" parent="1" source="infra-items" target="email-service" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1350" y="683"/>
+                            <mxPoint x="1350" y="385"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="legend" value="Legend" style="swimlane;startSize=25;fillColor=none;strokeColor=#666;fontStyle=1;fontSize=11;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="430" width="260" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="leg1" value="REST HTTP/JSON" style="rounded=1;fillColor=none;strokeColor=#6c8ebf;fontSize=10;" parent="legend" vertex="1">
+                    <mxGeometry x="10" y="35" width="140" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="leg2" value="WebSocket STOMP" style="rounded=1;fillColor=none;strokeColor=#82b366;fontSize=10;" parent="legend" vertex="1">
+                    <mxGeometry x="10" y="70" width="140" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="leg3" value="External Service" style="rounded=1;fillColor=none;strokeColor=#666;fontSize=10;" parent="legend" vertex="1">
+                    <mxGeometry x="10" y="105" width="140" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="leg4" value="Clean Architecture Layer" style="rounded=1;fillColor=none;strokeColor=#d6b656;fontSize=10;" parent="legend" vertex="1">
+                    <mxGeometry x="10" y="140" width="140" height="25" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

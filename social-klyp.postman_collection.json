@@ -1,0 +1,542 @@
+{
+  "info": {
+    "name": "Social Klyp API",
+    "_postman_id": "social-klyp-collection",
+    "description": "Complete API collection for Social Klyp backend.\n\n**Base URL:** {{baseUrl}}\n\n**Auth:** All protected endpoints require Bearer JWT.\nRun 'Login' or 'Register' first — the token is saved automatically to {{token}}.\n\n**WebSocket:** See the 'WebSocket (STOMP)' folder for connection instructions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",    "value": "http://localhost:8888",                          "type": "string" },
+    { "key": "token",      "value": "",                                               "type": "string" },
+    { "key": "profileId",  "value": "00000000-0000-0000-0000-000000000000",           "type": "string" },
+    { "key": "postId",     "value": "00000000-0000-0000-0000-000000000000",           "type": "string" },
+    { "key": "commentId",  "value": "00000000-0000-0000-0000-000000000000",           "type": "string" },
+    { "key": "chatId",     "value": "00000000-0000-0000-0000-000000000000",           "type": "string" },
+    { "key": "messageId",  "value": "00000000-0000-0000-0000-000000000000",           "type": "string" },
+    { "key": "linkId",     "value": "00000000-0000-0000-0000-000000000000",           "type": "string" },
+    { "key": "mediaId",    "value": "00000000-0000-0000-0000-000000000000",           "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===200){pm.collectionVariables.set('token',pm.response.json().token);}"], "type": "text/javascript" } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Lucas\",\n  \"lastName\": \"Silva\",\n  \"birthDay\": \"2000-01-01\",\n  \"username\": \"lucasdev123\",\n  \"email\": \"lucas@klyp.com\",\n  \"business\": false,\n  \"password\": \"!12345678\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth","register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===200){pm.collectionVariables.set('token',pm.response.json().token);}"], "type": "text/javascript" } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"login\": \"lucasdev123\",\n  \"password\": \"!12345678\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/refresh-token", "host": ["{{baseUrl}}"], "path": ["auth","refresh-token"] }
+          }
+        },
+        {
+          "name": "Verify Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"!12345678\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/verify-password", "host": ["{{baseUrl}}"], "path": ["auth","verify-password"] }
+          }
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"!12345678\",\n  \"newPassword\": \"!123456789\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/password", "host": ["{{baseUrl}}"], "path": ["auth","password"] }
+          }
+        },
+        {
+          "name": "Send Verification Email",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/auth/send-verification", "host": ["{{baseUrl}}"], "path": ["auth","send-verification"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Profiles",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/profiles/me", "host": ["{{baseUrl}}"], "path": ["profiles","me"] }
+          }
+        },
+        {
+          "name": "Get Profile by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/profiles/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["profiles","{{profileId}}"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"displayName\": \"Lucas Dev\",\n  \"bio\": \"Backend developer\",\n  \"isPrivate\": false\n}" },
+            "url": { "raw": "{{baseUrl}}/profiles", "host": ["{{baseUrl}}"], "path": ["profiles"] }
+          }
+        },
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "method": "PATCH",
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/profiles/picture", "host": ["{{baseUrl}}"], "path": ["profiles","picture"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 Posts",
+      "item": [
+        {
+          "name": "List Public Posts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts?page=0&size=10&sort=createdAt,desc", "host": ["{{baseUrl}}"], "path": ["posts"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"},{"key":"sort","value":"createdAt,desc"}] }
+          }
+        },
+        {
+          "name": "List My Posts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/me?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["posts","me"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
+          }
+        },
+        {
+          "name": "List Posts by Profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/profile/{{profileId}}?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["posts","profile","{{profileId}}"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
+          }
+        },
+        {
+          "name": "Get Post by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}"] }
+          }
+        },
+        {
+          "name": "Create Post",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('postId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello world! This is my first post.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          }
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Updated post content.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}"] }
+          }
+        },
+        {
+          "name": "Delete Post",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Comments",
+      "item": [
+        {
+          "name": "List Comments by Post",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/comments?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","comments"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
+          }
+        },
+        {
+          "name": "Add Comment",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('commentId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Great post!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/comments", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","comments"] }
+          }
+        },
+        {
+          "name": "Update Comment",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Actually, I disagree!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/comments/{{commentId}}", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","comments","{{commentId}}"] }
+          }
+        },
+        {
+          "name": "Delete Comment",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/comments/{{commentId}}", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","comments","{{commentId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Likes",
+      "item": [
+        {
+          "name": "Count Likes",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/likes/count", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","likes","count"] }
+          }
+        },
+        {
+          "name": "Check If Liked",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/likes", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","likes"] }
+          }
+        },
+        {
+          "name": "Like Post",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/likes", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","likes"] }
+          }
+        },
+        {
+          "name": "Unlike Post",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/likes", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","likes"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "��️ Media",
+      "item": [
+        {
+          "name": "List Media by Post",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/media", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","media"] }
+          }
+        },
+        {
+          "name": "Upload Media to Post",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('mediaId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/media", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","media"] }
+          }
+        },
+        {
+          "name": "Delete Media",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/posts/{{postId}}/media/{{mediaId}}", "host": ["{{baseUrl}}"], "path": ["posts","{{postId}}","media","{{mediaId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Follows",
+      "item": [
+        {
+          "name": "Follow Profile",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/follows/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["follows","{{profileId}}"] }
+          }
+        },
+        {
+          "name": "Unfollow Profile",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/follows/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["follows","{{profileId}}"] }
+          }
+        },
+        {
+          "name": "List Followers",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/follows/{{profileId}}/followers?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["follows","{{profileId}}","followers"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
+          }
+        },
+        {
+          "name": "List Following",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/follows/{{profileId}}/following?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["follows","{{profileId}}","following"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
+          }
+        },
+        {
+          "name": "Follow Stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/follows/{{profileId}}/stats", "host": ["{{baseUrl}}"], "path": ["follows","{{profileId}}","stats"] }
+          }
+        },
+        {
+          "name": "Is Following",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/follows/{{profileId}}/is-following", "host": ["{{baseUrl}}"], "path": ["follows","{{profileId}}","is-following"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Chats",
+      "item": [
+        {
+          "name": "List My Chats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/chats?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["chats"], "query": [{"key":"page","value":"0"},{"key":"size","value":"10"}] }
+          }
+        },
+        {
+          "name": "Get Chat by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}"] }
+          }
+        },
+        {
+          "name": "Create Chat",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('chatId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Dev Team\",\n  \"description\": \"Channel for the dev team\"\n}" },
+            "url": { "raw": "{{baseUrl}}/chats", "host": ["{{baseUrl}}"], "path": ["chats"] }
+          }
+        },
+        {
+          "name": "Update Chat",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Backend Team\",\n  \"description\": \"Only backend devs here\"\n}" },
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}"] }
+          }
+        },
+        {
+          "name": "Delete Chat",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}"] }
+          }
+        },
+        {
+          "name": "Add Member",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/members/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","members","{{profileId}}"] }
+          }
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/members/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","members","{{profileId}}"] }
+          }
+        },
+        {
+          "name": "Promote to Admin",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/admins/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","admins","{{profileId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Messages (REST)",
+      "item": [
+        {
+          "name": "List Messages by Chat",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/messages?page=0&size=20&sort=createdAt,asc", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","messages"], "query": [{"key":"page","value":"0"},{"key":"size","value":"20"},{"key":"sort","value":"createdAt,asc"}] }
+          }
+        },
+        {
+          "name": "Send Message (REST)",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('messageId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello everyone!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/messages", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","messages"] }
+          }
+        },
+        {
+          "name": "Edit Message (REST)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Actually, I meant this!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/messages/{{messageId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","messages","{{messageId}}"] }
+          }
+        },
+        {
+          "name": "Delete Message (REST)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/chats/{{chatId}}/messages/{{messageId}}", "host": ["{{baseUrl}}"], "path": ["chats","{{chatId}}","messages","{{messageId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔗 Links (Invite)",
+      "item": [
+        {
+          "name": "Create Invite Link",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('linkId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/links/chats/{{chatId}}?expirationDate=2026-12-31T23:59:59", "host": ["{{baseUrl}}"], "path": ["links","chats","{{chatId}}"], "query": [{"key":"expirationDate","value":"2026-12-31T23:59:59","description":"Optional. ISO-8601 format. Remove to create a permanent link."}] }
+          }
+        },
+        {
+          "name": "Create Invite Link (No Expiry)",
+          "event": [{ "listen": "test", "script": { "exec": ["if(pm.response.code===201){pm.collectionVariables.set('linkId',pm.response.json().id);}"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/links/chats/{{chatId}}", "host": ["{{baseUrl}}"], "path": ["links","chats","{{chatId}}"] }
+          }
+        },
+        {
+          "name": "Join Chat via Link",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/links/{{linkId}}/subscribe", "host": ["{{baseUrl}}"], "path": ["links","{{linkId}}","subscribe"] }
+          }
+        },
+        {
+          "name": "Deactivate Link",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/links/{{linkId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["links","{{linkId}}","deactivate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔌 WebSocket (STOMP)",
+      "description": "WebSocket real-time chat via STOMP protocol.\n\n## How to test in Postman\n\n1. Open a new **WebSocket Request** tab in Postman\n2. Set URL: `ws://localhost:8888/ws/websocket`\n3. Under **Headers**, add:\n   - `Authorization: Bearer {{token}}`\n4. Connect\n5. Use the STOMP frames below\n\n## STOMP Frame format\nPostman sends raw text frames. Use the STOMP protocol format shown in each request.\n\n## Subscriptions (subscribe before sending)\n- Chat messages: `/topic/chat/{{chatId}}`\n- Typing events: `/topic/chat/{{chatId}}/typing`\n- Private errors: `/user/queue/errors`",
+      "item": [
+        {
+          "name": "CONNECT (authenticate)",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP CONNECT frame\n\nSend this as the first frame after opening the WebSocket connection.\n\n```\nCONNECT\naccept-version:1.1,1.2\nheart-beat:10000,10000\nAuthorization:Bearer {{token}}\n\n\\u0000\n```\n\n**Note:** In Postman WebSocket, paste the frame text in the message body.",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SUBSCRIBE to chat",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SUBSCRIBE frame\n\nSubscribe to receive messages from a chat room.\n\n```\nSUBSCRIBE\nid:sub-chat\ndestination:/topic/chat/{{chatId}}\n\n\\u0000\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SUBSCRIBE to typing events",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SUBSCRIBE frame — typing indicator\n\n```\nSUBSCRIBE\nid:sub-typing\ndestination:/topic/chat/{{chatId}}/typing\n\n\\u0000\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SUBSCRIBE to errors (private)",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SUBSCRIBE frame — private errors\n\n```\nSUBSCRIBE\nid:sub-errors\ndestination:/user/queue/errors\n\n\\u0000\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SEND message",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SEND frame — send a new message\n\nDestination: `/app/chat/{chatId}/send`\n\nBroadcast to: `/topic/chat/{chatId}`\n\n```\nSEND\ndestination:/app/chat/{{chatId}}/send\ncontent-type:application/json\n\n{\"content\":\"Hello everyone!\"}\n\\u0000\n```\n\n**WsInboundMessage body:**\n```json\n{\n  \"content\": \"Hello everyone!\"\n}\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SEND edit message",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SEND frame — edit an existing message\n\nDestination: `/app/chat/{chatId}/edit`\n\nBroadcast to: `/topic/chat/{chatId}` with `type: EDIT`\n\n⚠️ Only works within 30 minutes of the original message.\n\n```\nSEND\ndestination:/app/chat/{{chatId}}/edit\ncontent-type:application/json\n\n{\"messageId\":\"{{messageId}}\",\"content\":\"Actually, I meant this!\"}\n\\u0000\n```\n\n**WsEditMessage body:**\n```json\n{\n  \"messageId\": \"{{messageId}}\",\n  \"content\": \"Actually, I meant this!\"\n}\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SEND delete message",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SEND frame — soft-delete a message\n\nDestination: `/app/chat/{chatId}/delete`\n\nBroadcast to: `/topic/chat/{chatId}` with `type: DELETE`\n\nSender or chat admin can delete.\n\n```\nSEND\ndestination:/app/chat/{{chatId}}/delete\ncontent-type:application/json\n\n{\"messageId\":\"{{messageId}}\"}\n\\u0000\n```\n\n**WsDeleteMessage body:**\n```json\n{\n  \"messageId\": \"{{messageId}}\"\n}\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "SEND typing indicator",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP SEND frame — typing indicator\n\nDestination: `/app/chat/{chatId}/typing`\n\nBroadcast to: `/topic/chat/{chatId}/typing`\n\nServer fills profileId and displayName automatically from the authenticated user.\n\n```\nSEND\ndestination:/app/chat/{{chatId}}/typing\ncontent-type:application/json\n\n{\"typing\":true}\n\\u0000\n```\n\n**WsTypingRequest body:**\n```json\n{\n  \"typing\": true\n}\n```\n\nTo stop typing:\n```json\n{\n  \"typing\": false\n}\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        },
+        {
+          "name": "DISCONNECT",
+          "request": {
+            "method": "GET",
+            "description": "## STOMP DISCONNECT frame\n\n```\nDISCONNECT\n\n\\u0000\n```",
+            "url": { "raw": "ws://{{baseUrl}}/ws/websocket", "host": ["{{baseUrl}}"], "path": ["ws","websocket"] }
+          }
+        }
+      ]
+    }
+  ]
+}
