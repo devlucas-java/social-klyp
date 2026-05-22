@@ -24,3 +24,14 @@ app:
     username: admin
     email: admin@dev.com
     password: 12345678
+
+b2:
+  key-id: dev-placeholder-key-id
+  key: dev-placeholder-key
+  bucket-id: dev-placeholder-bucket-id
+
+brevo:
+  api-key: dev-placeholder-brevo-api-key
+  sender:
+    email: noreply@socialklyp.dev
+    name: Social Klyp Dev

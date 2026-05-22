@@ -4,7 +4,23 @@ spring:
 
 # if use docker compose comment, or use intellij user profile dev, test or prod
   profiles:
-    active: test
+    active: dev
 
-server:
-  port: 8888
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,prometheus
+
+    endpoint:
+      health:
+        show-details: always
+
+    prometheus:
+      metrics:
+        export:
+          enabled: true
+
+    metrics:
+      tags:
+        application: ${spring.application.name}

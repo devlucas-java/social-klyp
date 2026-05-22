@@ -8,6 +8,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ConflictException
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ForbiddenException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundException;
 import com.github.devlucasjava.socialklyp.delivery.rest.advice.UnauthorizeException;
+import com.github.devlucasjava.socialklyp.domain.policy.ChatMembershipPolicy;
 import com.github.devlucasjava.socialklyp.domain.entity.Chat;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
@@ -30,6 +31,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
+    private final ChatMembershipPolicy chatMembershipPolicy;
     private final ChatMapper chatMapper;
 
     @Transactional(readOnly = true)
@@ -102,12 +104,8 @@ public class ChatService {
 
         Profile target = getProfileByIdOrThrow(targetProfileId);
 
-        if (chat.isMember(target)) {
-            throw new ConflictException("Profile is already a member of this chat");
-        }
-
-        if (chat.isFull()) {
-            throw new ConflictException("Chat has reached the maximum limit of " + Chat.MAX_MEMBERS + " members");
+        if (!chatMembershipPolicy.canAddProfile(chat, target)) {
+            throw new ConflictException("Profile cannot be added to this chat");
         }
 
         chat.addMemberProfile(target);
@@ -123,12 +121,11 @@ public class ChatService {
 
         Profile target = getProfileByIdOrThrow(targetProfileId);
 
-        if (chat.getProfileCreator().getId().equals(target.getId())) {
+        if (!chat.canRemoveMember(target)) {
             throw new ForbiddenException("Cannot remove the chat creator");
         }
 
-        chat.getProfiles().remove(target);
-        chat.getProfilesAdmin().remove(target);
+        chat.removeMemberProfile(target);
 
         return chatMapper.toResponse(chatRepository.save(chat));
     }
@@ -142,22 +139,22 @@ public class ChatService {
 
         Profile target = getProfileByIdOrThrow(targetProfileId);
 
-        if (!chat.isMember(target)) {
-            throw new ForbiddenException("Profile is not a member of this chat");
+        if (!chat.canPromoteToAdmin(target)) {
+            throw new ForbiddenException("Profile cannot be promoted to admin");
         }
 
-        chat.addAdminProfile(target);
+        chat.promoteAdminProfile(target);
         return chatMapper.toResponse(chatRepository.save(chat));
     }
 
     private void validateMember(Profile profile, Chat chat) {
-        if (!chat.isMember(profile)) {
+        if (!chatMembershipPolicy.isMember(chat, profile)) {
             throw new ForbiddenException("You are not a member of this chat");
         }
     }
 
     private void validateAdmin(Profile profile, Chat chat) {
-        if (!chat.isAdmin(profile)) {
+        if (!chatMembershipPolicy.isAdmin(chat, profile)) {
             throw new UnauthorizeException("You are not an admin of this chat");
         }
     }

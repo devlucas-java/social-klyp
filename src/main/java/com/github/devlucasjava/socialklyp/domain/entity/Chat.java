@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -104,5 +105,45 @@ public class Chat {
         if (profile == null) return false;
         return (profilesAdmin != null && profilesAdmin.contains(profile)) ||
                (profileCreator != null && profileCreator.getId().equals(profile.getId()));
+    }
+
+    public boolean isCreator(Profile profile) {
+        if (profile == null) {
+            return false;
+        }
+        return profileCreator != null && Objects.equals(profileCreator.getId(), profile.getId());
+    }
+
+    public boolean canAddProfile(Profile profile) {
+        return profile != null && !isFull() && !isMember(profile);
+    }
+
+    public boolean canRemoveMember(Profile profile) {
+        return profile != null && isMember(profile) && !isCreator(profile);
+    }
+
+    public boolean canPromoteToAdmin(Profile profile) {
+        return profile != null && isMember(profile) && !isAdmin(profile);
+    }
+
+    public void removeMemberProfile(Profile profile) {
+        if (profile == null) {
+            return;
+        }
+        if (profiles != null) {
+            profiles.remove(profile);
+        }
+        if (profilesAdmin != null) {
+            profilesAdmin.remove(profile);
+        }
+    }
+
+    public void promoteAdminProfile(Profile profile) {
+        if (profile == null) {
+            return;
+        }
+        if (isMember(profile)) {
+            profilesAdmin.add(profile);
+        }
     }
 }

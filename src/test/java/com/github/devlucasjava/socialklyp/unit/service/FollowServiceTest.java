@@ -10,6 +10,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundE
 import com.github.devlucasjava.socialklyp.domain.entity.Follow;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
+import com.github.devlucasjava.socialklyp.domain.policy.FollowRelationshipPolicy;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.FollowRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,9 @@ class FollowServiceTest {
 
     @Mock
     private ProfileRepository profileRepository;
+
+    @Mock
+    private FollowRelationshipPolicy followRelationshipPolicy;
 
     @Mock
     private FollowMapper followMapper;
@@ -92,7 +96,8 @@ class FollowServiceTest {
 
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(followerProfile));
         when(profileRepository.findById(followingProfileId)).thenReturn(Optional.of(followingProfile));
-        when(followRepository.existsByFollowerAndFollowing(followerProfile, followingProfile)).thenReturn(false);
+        when(followRelationshipPolicy.areDifferentProfiles(followerProfile, followingProfile)).thenReturn(true);
+        when(followRelationshipPolicy.isAlreadyFollowing(followerProfile, followingProfile)).thenReturn(false);
         when(followRepository.save(any(Follow.class))).thenReturn(follow);
         when(followMapper.toResponse(follow)).thenReturn(expectedResponse);
 
@@ -108,6 +113,7 @@ class FollowServiceTest {
     void shouldThrowWhenFollowingSelf() {
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(followerProfile));
         when(profileRepository.findById(followerProfileId)).thenReturn(Optional.of(followerProfile));
+        when(followRelationshipPolicy.areDifferentProfiles(followerProfile, followerProfile)).thenReturn(false);
 
         assertThrows(ForbiddenException.class,
                 () -> followService.follow(authUser, followerProfileId));
@@ -119,7 +125,8 @@ class FollowServiceTest {
     void shouldThrowWhenAlreadyFollowing() {
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(followerProfile));
         when(profileRepository.findById(followingProfileId)).thenReturn(Optional.of(followingProfile));
-        when(followRepository.existsByFollowerAndFollowing(followerProfile, followingProfile)).thenReturn(true);
+        when(followRelationshipPolicy.areDifferentProfiles(followerProfile, followingProfile)).thenReturn(true);
+        when(followRelationshipPolicy.isAlreadyFollowing(followerProfile, followingProfile)).thenReturn(true);
 
         assertThrows(ConflictException.class,
                 () -> followService.follow(authUser, followingProfileId));

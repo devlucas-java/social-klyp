@@ -47,23 +47,26 @@
 
 ## 🏛 Arquitetura
 
-O projeto segue **Clean Architecture** com separação estrita de responsabilidades:
+O proyecto sigue **Clean Architecture** con separación estrita de responsabilidades y elementos de **Domain-Driven Design (DDD)**:
 
 ```
 Delivery (Controllers, WebSocket)
     ↓
 Application (Use Cases, Services, DTOs)
     ↓
-Domain (Entities, Enums, Regras de Negócio)
+Domain (Entities, Value Objects, Domain Services)
     ↑
 Infrastructure (DB, Security, Cache, Clients externos)
 ```
 
-- **domain/** → entidades e regras de negócio puras, sem dependências externas
-- **application/** → casos de uso, orquestração, DTOs, mappers
-- **infrastructure/** → implementações concretas (JPA, JWT, Redis, S3, Stripe...)
-- **delivery/** → entrada HTTP (controllers REST) e WebSocket
-- **shared/** → utilitários, constantes, validadores transversais
+- **domain/** → entidades y reglas de negocio puras, sin dependencias externas de infraestructura.
+- **domain/service/** → servicios de dominio para reglas que no pertenecen a una única entidad.
+- **domain/service/impl/** → implementaciones concretas de servicios de dominio.
+- **domain/valueobject/** → objetos de valor que validan invariantes y modelan conceptos como `Email`, `PostContent`, `ChatCapacity`.
+- **application/** → casos de uso, orquestación, validación de permisos, DTOs y mappers.
+- **infrastructure/** → implementaciones concretas (JPA, JWT, Redis, S3, Stripe...).
+- **delivery/** → entrada HTTP (controllers REST) y WebSocket.
+- **shared/** → utilitários, constantes, validadores transversales.
 
 ---
 
@@ -85,7 +88,26 @@ social-klyp/
 │   │   │   ├── Like.java
 │   │   │   ├── Follow.java
 │   │   │   ├── Media.java
-│   │   │
+│   │   │   ├── Chat.java
+│   │   │   └── TokenVerify.java
+│   │   ├── policy/
+│   │   │   ├── ChatMembershipPolicy.java
+│   │   │   ├── FollowRelationshipPolicy.java
+│   │   │   ├── PostAccessPolicy.java
+│   │   │   ├── PostEngagementPolicy.java
+│   │   │   └── impl/
+│   │   │       ├── ChatMembershipPolicyImpl.java
+│   │   │       ├── FollowRelationshipPolicyImpl.java
+│   │   │       ├── PostAccessPolicyImpl.java
+│   │   │       └── PostEngagementPolicyImpl.java
+│   │   ├── valueobject/
+│   │   │   ├── Email.java
+│   │   │   ├── Username.java
+│   │   │   ├── UserFullName.java
+│   │   │   ├── ProfilePrivacy.java
+│   │   │   ├── PostContent.java
+│   │   │   ├── ChatCapacity.java
+│   │   │   └── ...
 │   │   └── enums/
 │   │       ├── Role.java
 │   │       ├── MediaType.java

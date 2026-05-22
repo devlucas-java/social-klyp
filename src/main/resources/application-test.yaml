@@ -30,7 +30,6 @@ b2: # keys for test, expire in 2026-04-16
   prefix-name-files: social-klyp
   bucket-id: bucket-id
 
-
 brevo: # keys for test, expire in 2026-04-17
   api-key: api-key
 

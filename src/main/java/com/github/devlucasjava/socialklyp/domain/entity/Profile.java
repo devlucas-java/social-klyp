@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,11 +47,31 @@ public class Profile {
     private Set<Follow> followers;
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Chat> chats;
-
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Message> messages;
-
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Link> links;
+
+    public boolean isSameAs(Profile other) {
+        return other != null && Objects.equals(this.id, other.id);
+    }
+
+    public boolean isFollowing(Profile target) {
+        if (target == null || following == null) {
+            return false;
+        }
+        return following.stream()
+                .map(Follow::getFollowing)
+                .anyMatch(target::isSameAs);
+    }
+
+    public boolean isFollowedBy(Profile source) {
+        if (source == null || followers == null) {
+            return false;
+        }
+        return followers.stream()
+                .map(Follow::getFollower)
+                .anyMatch(source::isSameAs);
+    }
+
+    public boolean canFollow(Profile target) {
+        return target != null && !isSameAs(target) && !isFollowing(target);
+    }
 }

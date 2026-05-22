@@ -10,6 +10,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundE
 import com.github.devlucasjava.socialklyp.domain.entity.Post;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
+import com.github.devlucasjava.socialklyp.domain.policy.PostAccessPolicy;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.FollowRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.PostRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
@@ -49,6 +50,9 @@ class PostServiceTest {
 
     @Mock
     private FollowRepository followRepository;
+
+    @Mock
+    private PostAccessPolicy postAccessPolicy;
 
     @Mock
     private PostMapper postMapper;
@@ -135,13 +139,14 @@ class PostServiceTest {
         post.setProfile(publicProfile);
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(publicProfile));
+        when(postAccessPolicy.canViewPost(post, publicProfile)).thenReturn(true);
         when(postMapper.toResponse(post)).thenReturn(postResponse);
 
         PostResponse result = postService.findById(authUser, postId);
 
         assertNotNull(result);
         assertEquals(postId, result.id());
-        verify(profileRepository, never()).findByUser(any());
     }
 
     @Test
@@ -153,12 +158,12 @@ class PostServiceTest {
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(requesterProfile));
+        when(postAccessPolicy.canViewPost(post, requesterProfile)).thenReturn(true);
         when(postMapper.toResponse(post)).thenReturn(postResponse);
 
         PostResponse result = postService.findById(authUser, postId);
 
         assertNotNull(result);
-        verify(followRepository, never()).existsByFollowerAndFollowing(any(), any());
     }
 
     @Test
@@ -170,7 +175,7 @@ class PostServiceTest {
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(requesterProfile));
-        when(followRepository.existsByFollowerAndFollowing(requesterProfile, privateProfile)).thenReturn(true);
+        when(postAccessPolicy.canViewPost(post, requesterProfile)).thenReturn(true);
         when(postMapper.toResponse(post)).thenReturn(postResponse);
 
         PostResponse result = postService.findById(authUser, postId);
@@ -187,7 +192,7 @@ class PostServiceTest {
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(requesterProfile));
-        when(followRepository.existsByFollowerAndFollowing(requesterProfile, privateProfile)).thenReturn(false);
+        when(postAccessPolicy.canViewPost(post, requesterProfile)).thenReturn(false);
 
         assertThrows(ForbiddenException.class,
                 () -> postService.findById(authUser, postId));
@@ -209,13 +214,14 @@ class PostServiceTest {
         Page<Post> page = new PageImpl<>(List.of(post));
 
         when(profileRepository.findById(publicProfileId)).thenReturn(Optional.of(publicProfile));
+        when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(publicProfile));
+        when(postAccessPolicy.canViewProfilePosts(publicProfile, publicProfile)).thenReturn(true);
         when(postRepository.findByProfile(publicProfile, pageable)).thenReturn(page);
         when(postMapper.toResponse(post)).thenReturn(postResponse);
 
         Page<PostResponse> result = postService.findByProfile(authUser, publicProfileId, pageable);
 
         assertEquals(1, result.getTotalElements());
-        verify(profileRepository, never()).findByUser(any());
     }
 
     @Test
@@ -228,6 +234,7 @@ class PostServiceTest {
 
         when(profileRepository.findById(privateProfileId)).thenReturn(Optional.of(privateProfile));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(ownerProfile));
+        when(postAccessPolicy.canViewProfilePosts(privateProfile, ownerProfile)).thenReturn(true);
         when(postRepository.findByProfile(privateProfile, pageable)).thenReturn(page);
         when(postMapper.toResponse(post)).thenReturn(postResponse);
 
@@ -246,7 +253,7 @@ class PostServiceTest {
 
         when(profileRepository.findById(privateProfileId)).thenReturn(Optional.of(privateProfile));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(requesterProfile));
-        when(followRepository.existsByFollowerAndFollowing(requesterProfile, privateProfile)).thenReturn(true);
+        when(postAccessPolicy.canViewProfilePosts(privateProfile, requesterProfile)).thenReturn(true);
         when(postRepository.findByProfile(privateProfile, pageable)).thenReturn(page);
         when(postMapper.toResponse(post)).thenReturn(postResponse);
 
@@ -264,7 +271,7 @@ class PostServiceTest {
 
         when(profileRepository.findById(privateProfileId)).thenReturn(Optional.of(privateProfile));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(requesterProfile));
-        when(followRepository.existsByFollowerAndFollowing(requesterProfile, privateProfile)).thenReturn(false);
+        when(postAccessPolicy.canViewProfilePosts(privateProfile, requesterProfile)).thenReturn(false);
 
         assertThrows(ForbiddenException.class,
                 () -> postService.findByProfile(authUser, privateProfileId, pageable));

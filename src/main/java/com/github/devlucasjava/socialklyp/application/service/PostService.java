@@ -9,7 +9,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundE
 import com.github.devlucasjava.socialklyp.domain.entity.Post;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
-import com.github.devlucasjava.socialklyp.infrastructure.database.repository.FollowRepository;
+import com.github.devlucasjava.socialklyp.domain.policy.PostAccessPolicy;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.PostRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
-    private final FollowRepository followRepository;
+    private final PostAccessPolicy postAccessPolicy;
     private final PostMapper postMapper;
 
     @Transactional(readOnly = true)
@@ -43,15 +43,10 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse findById(User auth, UUID id) {
         Post post = findPostOrThrow(id);
-        Profile postOwner = post.getProfile();
+        Profile requester = auth == null ? null : findProfileOrThrow(auth);
 
-        if (postOwner.isPrivate()) {
-            Profile requester = findProfileOrThrow(auth);
-            boolean isOwner = requester.getId().equals(postOwner.getId());
-
-            if (!isOwner && !followRepository.existsByFollowerAndFollowing(requester, postOwner)) {
-                throw new ForbiddenException("This post belongs to a private profile");
-            }
+        if (!postAccessPolicy.canViewPost(post, requester)) {
+            throw new ForbiddenException("This post belongs to a private profile");
         }
 
         return postMapper.toResponse(post);
@@ -61,14 +56,10 @@ public class PostService {
     public Page<PostResponse> findByProfile(User auth, UUID profileId, Pageable pageable) {
         Profile targetProfile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + profileId));
+        Profile requester = auth == null ? null : findProfileOrThrow(auth);
 
-        if (targetProfile.isPrivate()) {
-            Profile requester = findProfileOrThrow(auth);
-            boolean isOwner = requester.getId().equals(targetProfile.getId());
-
-            if (!isOwner && !followRepository.existsByFollowerAndFollowing(requester, targetProfile)) {
-                throw new ForbiddenException("This profile is private");
-            }
+        if (!postAccessPolicy.canViewProfilePosts(targetProfile, requester)) {
+            throw new ForbiddenException("This profile is private");
         }
 
         return postRepository.findByProfile(targetProfile, pageable).map(postMapper::toResponse);
@@ -85,21 +76,20 @@ public class PostService {
     @Transactional
     public PostResponse update(UUID postId, User auth, UpdatePostRequest request) {
         Post post = findPostOrThrow(postId);
-        validateOwnerProfile(findProfileOrThrow(auth), post);
+        if (!post.isOwnedBy(findProfileOrThrow(auth))) {
+            throw new ForbiddenException("You cannot modify this post");
+        }
         post.setContent(request.content());
         return postMapper.toResponse(postRepository.save(post));
     }
 
     @Transactional
     public void delete(User auth, UUID id) {
-        validateOwnerProfile(findProfileOrThrow(auth), findPostOrThrow(id));
-        postRepository.deleteById(id);
-    }
-
-    private void validateOwnerProfile(Profile profile, Post post) {
-        if (!profile.getId().equals(post.getProfile().getId())) {
+        Post post = findPostOrThrow(id);
+        if (!post.isOwnedBy(findProfileOrThrow(auth))) {
             throw new ForbiddenException("You cannot modify this post");
         }
+        postRepository.deleteById(id);
     }
 
     private Profile findProfileOrThrow(User user) {

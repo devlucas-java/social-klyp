@@ -12,6 +12,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.UnauthorizeExcept
 import com.github.devlucasjava.socialklyp.domain.entity.Chat;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
+import com.github.devlucasjava.socialklyp.domain.policy.ChatMembershipPolicy;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ChatRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.UserRepository;
@@ -48,6 +49,7 @@ class ChatServiceTest {
     @Mock private ChatRepository chatRepository;
     @Mock private ProfileRepository profileRepository;
     @Mock private UserRepository userRepository;
+    @Mock private ChatMembershipPolicy chatMembershipPolicy;
     @Mock private ChatMapper chatMapper;
 
     private User authUser;
@@ -125,6 +127,7 @@ class ChatServiceTest {
     void shouldFindChatByIdForMember() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(memberProfile));
+        when(chatMembershipPolicy.isMember(chat, memberProfile)).thenReturn(true);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
 
         ChatResponse result = chatService.findChatById(authUser, chatId);
@@ -137,6 +140,7 @@ class ChatServiceTest {
     void shouldFindChatByIdForCreator() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isMember(chat, creatorProfile)).thenReturn(true);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
 
         assertNotNull(chatService.findChatById(authUser, chatId));
@@ -200,6 +204,7 @@ class ChatServiceTest {
 
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(chatRepository.save(chat)).thenReturn(chat);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
 
@@ -217,6 +222,7 @@ class ChatServiceTest {
 
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(chatRepository.save(chat)).thenReturn(chat);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
 
@@ -263,7 +269,9 @@ class ChatServiceTest {
     void shouldAddMemberSuccessfully() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(outsiderId)).thenReturn(Optional.of(outsiderProfile));
+        when(chatMembershipPolicy.canAddProfile(chat, outsiderProfile)).thenReturn(true);
         when(chatRepository.save(chat)).thenReturn(chat);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
 
@@ -277,7 +285,9 @@ class ChatServiceTest {
     void shouldThrowWhenAddingAlreadyMember() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(memberId)).thenReturn(Optional.of(memberProfile));
+        when(chatMembershipPolicy.canAddProfile(chat, memberProfile)).thenReturn(false);
 
         assertThrows(ConflictException.class,
                 () -> chatService.addMember(authUser, chatId, memberId));
@@ -296,7 +306,9 @@ class ChatServiceTest {
 
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(outsiderId)).thenReturn(Optional.of(outsiderProfile));
+        when(chatMembershipPolicy.canAddProfile(chat, outsiderProfile)).thenReturn(false);
 
         assertThrows(ConflictException.class,
                 () -> chatService.addMember(authUser, chatId, outsiderId));
@@ -317,6 +329,7 @@ class ChatServiceTest {
     void shouldRemoveMemberSuccessfully() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(memberId)).thenReturn(Optional.of(memberProfile));
         when(chatRepository.save(chat)).thenReturn(chat);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
@@ -330,6 +343,7 @@ class ChatServiceTest {
     void shouldThrowWhenTryingToRemoveCreator() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(creatorId)).thenReturn(Optional.of(creatorProfile));
 
         assertThrows(ForbiddenException.class,
@@ -342,6 +356,7 @@ class ChatServiceTest {
     void shouldPromoteMemberToAdminSuccessfully() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(memberId)).thenReturn(Optional.of(memberProfile));
         when(chatRepository.save(chat)).thenReturn(chat);
         when(chatMapper.toResponse(chat)).thenReturn(chatResponse);
@@ -355,7 +370,11 @@ class ChatServiceTest {
     void shouldThrowWhenPromotingNonMember() {
         when(chatRepository.findById(chatId)).thenReturn(Optional.of(chat));
         when(profileRepository.findByUser(authUser)).thenReturn(Optional.of(creatorProfile));
+        // creatorProfile is admin — passes validateAdmin
+        when(chatMembershipPolicy.isAdmin(chat, creatorProfile)).thenReturn(true);
         when(profileRepository.findById(outsiderId)).thenReturn(Optional.of(outsiderProfile));
+        // outsiderProfile is not a member — canPromoteToAdmin returns false
+        // chat.canPromoteToAdmin delegates to chat.isMember which returns false for outsider
 
         assertThrows(ForbiddenException.class,
                 () -> chatService.promoteToAdmin(authUser, chatId, outsiderId));

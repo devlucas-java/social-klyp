@@ -9,6 +9,7 @@ import com.github.devlucasjava.socialklyp.delivery.rest.advice.ResourceNotFoundE
 import com.github.devlucasjava.socialklyp.domain.entity.Follow;
 import com.github.devlucasjava.socialklyp.domain.entity.Profile;
 import com.github.devlucasjava.socialklyp.domain.entity.User;
+import com.github.devlucasjava.socialklyp.domain.policy.FollowRelationshipPolicy;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.FollowRepository;
 import com.github.devlucasjava.socialklyp.infrastructure.database.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final ProfileRepository profileRepository;
+    private final FollowRelationshipPolicy followRelationshipPolicy;
     private final FollowMapper followMapper;
 
     @Transactional
@@ -32,11 +34,11 @@ public class FollowService {
         Profile follower = findProfileByUserOrThrow(auth);
         Profile following = findProfileByIdOrThrow(targetProfileId);
 
-        if (follower.getId().equals(following.getId())) {
+        if (!followRelationshipPolicy.areDifferentProfiles(follower, following)) {
             throw new ForbiddenException("You cannot follow yourself");
         }
 
-        if (followRepository.existsByFollowerAndFollowing(follower, following)) {
+        if (followRelationshipPolicy.isAlreadyFollowing(follower, following)) {
             throw new ConflictException("You are already following this profile");
         }
 
